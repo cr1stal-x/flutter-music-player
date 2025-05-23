@@ -25,7 +25,6 @@ class SongsViewModel extends ChangeNotifier {
 
     var status = await Permission.storage.request();
     if (!status.isGranted) {
-      // Handle permission denied
       _loading = false;
       notifyListeners();
       return;

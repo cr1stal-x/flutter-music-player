@@ -17,7 +17,6 @@ class MusicPlayerScreen extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 25),
           child: Column(
             children: [
-              // Top bar
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -35,7 +34,6 @@ class MusicPlayerScreen extends StatelessWidget {
 
               const SizedBox(height: 50),
 
-              // Artwork + song info
               NeuBox(
                 child: Selector<SongViewModel, SongModel?>(
                   selector: (context, vm) => vm.songs.isNotEmpty
@@ -75,7 +73,7 @@ class MusicPlayerScreen extends StatelessWidget {
                                 children: [
                                   SizedBox(
                                     height: 25,
-                                    width: 180, // adjust as needed
+                                    width: 180,
                                     child: Marquee(
                                       text: song.title,
                                       style: const TextStyle(
@@ -116,7 +114,6 @@ class MusicPlayerScreen extends StatelessWidget {
 
               const SizedBox(height: 25),
 
-              // Slider and loop/shuffle
               Consumer<SongViewModel>(
                 builder: (context, vm, _) {
                   return Column(
@@ -171,7 +168,6 @@ class MusicPlayerScreen extends StatelessWidget {
 
               const SizedBox(height: 10),
 
-              // Playback controls
               Consumer<SongViewModel>(
                 builder: (context, vm, _) {
                   return Row(
