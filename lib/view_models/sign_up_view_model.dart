@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:musix/views/main_page_view.dart';
 import 'package:musix/views/payment_view.dart';
+import 'package:musix/views/user_account_view.dart';
 import '../models/user_model.dart';
 
 class SignUpViewModel extends ChangeNotifier {
@@ -86,7 +87,7 @@ class SignUpViewModel extends ChangeNotifier {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => PaymentView(user: user),
+          builder: (context) => UserAccount(),
         ),
       );
 

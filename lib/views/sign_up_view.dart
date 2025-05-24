@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:musix/views/drawer.dart';
+import 'package:musix/views/login_view.dart';
 import 'package:provider/provider.dart';
 import '../view_models/sign_up_view_model.dart';
 
@@ -129,7 +130,12 @@ class SignUpView extends StatelessWidget {
                             margin: EdgeInsets.only(top: 200),
                             child: InkWell(
                               onTap: () {
-
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>Login(),
+                                  ),
+                                );
                               },
                               child: Text(
                                 'Already have an account?',

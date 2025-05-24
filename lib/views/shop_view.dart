@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:musix/views/drawer.dart';
+import 'package:musix/views/payment_view.dart';
+import 'package:musix/views/shop2_view.dart';
 
 class ShopPage extends StatelessWidget {
   const ShopPage({super.key});
@@ -34,27 +36,35 @@ class ShopPage extends StatelessWidget {
           ),
           itemBuilder: (_, index) {
             return Container(
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
-              ),
-              child: Column(
-                children: [
-                  Expanded(
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(16),
-                      child: Image.asset(
-                        'assets/images/songs.png',
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surface,
+                ),
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: (){Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => Shop2(category: categories[index]),
+                          ),
+                        );},
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(16),
+                          child: Image.asset(
+                            'assets/images/songs.png',
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      categories[index],
-                      style: const TextStyle(color: Colors.black),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        categories[index],
+                        style: const TextStyle(color: Colors.black),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
               ),
             );
           },
