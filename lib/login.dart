@@ -1,8 +1,11 @@
 import 'package:fintest/shop2.dart';
 import 'package:flutter/material.dart';
+import 'models/user_model.dart';
 
 class Login extends StatefulWidget {
 
+  //UserModel user;
+  //Login({Key? test, required this.user}) : super(key: test);
   Login({Key? test}) : super(key: test);
 
   //making state for this page
@@ -19,18 +22,19 @@ class _LoginState extends State<Login> {
   String? _welcome;
 
   //just for test!
-  final Map<String, String> _users = {
-    'Sara': '1234',
-    'ata': 'testPass',
-    'ana' : '0000'
-  };
+
+  final user = UserModel(
+      email: "sample@gmail.com",
+      password: "ghghGH45",
+      username: "Saytania"
+  );
 
   //methods:
   void _login() {
     final username = _username.text.trim(); //for remove spaces
     final password = _password.text;
 
-    if(_users[username] == null) {
+    if(!user.getName.equals(username) && !user.getEmail.equals(username)) {
       setState(() {
         _error = 'can not find a person with this name!';
         _welcome = null;
@@ -38,7 +42,7 @@ class _LoginState extends State<Login> {
       return;
     }
 
-    else if(_users[username] != password) {
+    else if(!user.getPassword.equals(password)) {
       setState(() {
         _error = 'incorrect password';
         _welcome = null;

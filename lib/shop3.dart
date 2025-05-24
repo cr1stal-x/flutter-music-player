@@ -1,6 +1,7 @@
 import 'package:fintest/commentPage.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
+import '../models/song_model.dart';
 
 class Shop3 extends StatefulWidget {
 
@@ -119,6 +120,22 @@ class _Shop3State extends State<Shop3> {
         playable = true;
         downloadable = true;
       });
+      //goto homePage
+
+      Song fixedSong = Song(
+        songName: mySong['songName'] ?? "Unknown",
+        artistName: mySong['singer'] ?? "Unknown",
+        albumArtImagePath: mySong['image'] ?? "assets/default.jpg",
+        audioPath: mySong['audio'] ?? "assets/audio/default.mp3",
+      );
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => YourNextPage(song: fixedSong),
+        ),
+      );
+
     }
     else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -128,12 +145,12 @@ class _Shop3State extends State<Shop3> {
   }
 
   void buyTheSong() {
-    if(mySong['price'] != 0 && widget.isPremium) {
+    if(mySong['price'] != 0 && !widget.isPremium) {
       if(credit >= mySong['price']) {
         setState(() { //refresh
           credit -= mySong['price'];
           downloadable = true;
-          playable = true;
+          //playable = true;
         });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Song purchased successfully 🛒")),
@@ -208,7 +225,7 @@ class _Shop3State extends State<Shop3> {
 
               SizedBox(height: 20),
 
-              if(mySong['price'] != 0 && widget.isPremium && !downloadable)
+              if(mySong['price'] != 0 && !widget.isPremium && !downloadable)
                 ElevatedButton(
                   onPressed: buyTheSong,
                   child: Text('Buy Song for \$${mySong['price'].toStringAsFixed(2)}'),
@@ -317,7 +334,6 @@ class _Shop3State extends State<Shop3> {
                   backgroundColor: Colors.pink,
                   foregroundColor: Colors.white,
                 ),
-
                 child: Text("See Other Comments"),
               ),
             ],
@@ -338,26 +354,4 @@ class _Shop3State extends State<Shop3> {
 
   int currentPosition = 0;
   int maxDuration = 10;
-
-  void startTimer() {
-    _timer?.cancel();
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
-      if(currentPosition < maxDuration) {
-        setState(() {
-          currentPosition++;
-        });
-      }
-      else {
-        timer.cancel();
-        setState(() {
-          isPlaying = false;
-          currentPosition = 0;
-        });
-      }
-    });
-  }
-
-  void stopTimer() {
-    _timer?.cancel();
-  }
 }

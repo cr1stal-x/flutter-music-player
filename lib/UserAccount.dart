@@ -1,8 +1,12 @@
 import 'package:fintest/login.dart';
 import 'package:flutter/material.dart';
+import '../models/user_model.dart';
 
 class UserAccount extends StatefulWidget {
-  UserAccount({Key? test}) : super(key: test);
+  //UserAccount({Key? test}) : super(key: test);
+  UserModel user;
+
+  UserAccount({Key? test, required this.user}) : super(key: test);
 
   @override
   State<UserAccount> createState() => _UserAccount();
@@ -12,6 +16,8 @@ class _UserAccount extends State<UserAccount> {
   List<String> Tem = ["default", "pink", "orange", "blue"];
   String currentTenTem = "default";
 
+
+/*
   Map<String, dynamic> person = {
     "name": "Sara",
     "username": "Saytania",
@@ -21,15 +27,17 @@ class _UserAccount extends State<UserAccount> {
     "isPremium": "normal",
   };
 
+ */
+
   void edit(String field, String edited) {
     if(field == "username") {
       setState(() {
-        person['username'] = edited;
+        widget.user.setName(edited);
       });
     }
     if (field == "password") {
       setState(() {
-        person['password'] = edited;
+        widget.user.setPassword(edited);
       });
     }
     else
@@ -63,7 +71,7 @@ class _UserAccount extends State<UserAccount> {
               SizedBox(height: 10),
 
               Text(
-                person["name"],
+                widget.user.getName(),
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
               SizedBox(height: 30),
@@ -89,7 +97,7 @@ class _UserAccount extends State<UserAccount> {
                         ),
                       ),
                       Text(
-                        "${person["username"]}",
+                        "${widget.user.getName()}",
                         textAlign: TextAlign.center,
                         style: TextStyle(fontSize: 18),
                       ),
@@ -104,7 +112,7 @@ class _UserAccount extends State<UserAccount> {
                         ),
                       ),
                       Text(
-                        "${person["e-mail"]}",
+                        "${widget.user.getEmail()}",
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 18,
@@ -146,9 +154,12 @@ class _UserAccount extends State<UserAccount> {
                           color: Colors.pink,
                         ),
                       ),
+                      /*
                       Text("${person["credit"]}\$",
                           style: TextStyle(fontSize: 18)),
                       SizedBox(height: 8),
+
+                       */
                       Text(
                         "Subscription",
                         style: TextStyle(
@@ -157,15 +168,18 @@ class _UserAccount extends State<UserAccount> {
                           color: Colors.pink,
                         ),
                       ),
+                      /*
                       Text("${person["isPremium"]}",
                           style: TextStyle(fontSize: 18)),
                       SizedBox(height: 12),
+
+                       */
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           ElevatedButton(
                             onPressed: () {
-                              goToPaymentPage("Increase Credit");
+                              goToPaymentPage();
                             },
                             child: Text("Increase Credit"),
                             style: ElevatedButton.styleFrom(
@@ -201,9 +215,7 @@ class _UserAccount extends State<UserAccount> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) =>
-                                //SignUpPage(plan: "Deleted Account"),
-                            Login(),
+                            builder: (context) => SignUpView(),
                           ),
                         );
                       });
@@ -217,13 +229,16 @@ class _UserAccount extends State<UserAccount> {
                   ElevatedButton(
                     onPressed: () {
                       Future.delayed(Duration(seconds: 1), () {
-                        //Navigator.push(
-                          //context,
-                          //MaterialPageRoute(
-                            //builder: (context) =>
-                                //PaymentPage(plan: "Chat with Admin"),
-                          //),
-                        //);
+                        /*
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                PaymentPage(plan: "Chat with Admin"),
+                          ),
+                        );
+
+                         */
                       });
                     },
                     style: ElevatedButton.styleFrom(
@@ -238,7 +253,6 @@ class _UserAccount extends State<UserAccount> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          //builder: (context) => SignUpPage(plan: "Logout"),
                           builder: (context) => Login(),
                         ),
                       );
@@ -381,7 +395,7 @@ class _UserAccount extends State<UserAccount> {
               ElevatedButton(
                 onPressed: () {
                   Navigator.pop(context);
-                  goToPaymentPage("Monthly Subscription");
+                  goToPaymentView();
                 },
                 child: Text("Monthly Subscription: 5.0\$"),
                 style: ElevatedButton.styleFrom(
@@ -393,7 +407,7 @@ class _UserAccount extends State<UserAccount> {
               ElevatedButton(
                 onPressed: () {
                   Navigator.pop(context);
-                  goToPaymentPage("3-Month Subscription:");
+                  goToPaymentView();
                 },
                 child: Text("3-Month Subscription: 10.2\$"),
                 style: ElevatedButton.styleFrom(
@@ -405,7 +419,7 @@ class _UserAccount extends State<UserAccount> {
               ElevatedButton(
                 onPressed: () {
                   Navigator.pop(context);
-                  goToPaymentPage("Yearly Subscription:");
+                  goToPaymentView();
                 },
                 child: Text("Yearly Subscription: 30.0\$"),
                 style: ElevatedButton.styleFrom(
@@ -420,7 +434,7 @@ class _UserAccount extends State<UserAccount> {
     );
   }
 
-  void goToPaymentPage(String plan) {
+  void goToPaymentView() {
     Navigator.push(
       context,
       MaterialPageRoute(

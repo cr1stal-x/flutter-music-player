@@ -1,10 +1,18 @@
 import 'package:fintest/shop2.dart';
 import 'package:flutter/material.dart';
+import 'theme/theme_provider.dart';
+
 
 import 'UserAccount.dart';
 
 void main() {
   runApp(const MyApp());
+  MultiProvider(
+    providers: [
+      ChangeNotifierProvider(create: (_)=>ThemeProvider()),
+    ],
+    child: const MyApp(),
+  ),
 }
 
 class MyApp extends StatelessWidget {
@@ -18,9 +26,9 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: Shop2(category: 'pop'),
+      //home: Shop2(category: 'pop'),
       //home: Login(),
-      //home: UserAccount(),
+      home: UserAccount(),
     );
   }
 }

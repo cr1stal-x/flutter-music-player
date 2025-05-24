@@ -9,7 +9,7 @@ class Comments extends StatefulWidget {
 }
 
 class _CommentsState extends State<Comments> {
-  String sortType = "likes";
+  String sortType = "likes"; //default
 
   List<String> sortTypes = ["likes", "dislikes"];
 
@@ -55,7 +55,7 @@ class _CommentsState extends State<Comments> {
       case "likes" :
         for(int i = 0; i < coms.length - 1; i++) {
           for(int j = 0; j < coms.length - i - 1; j++) {
-            if(coms[j]['likes'] < coms[j + 1]['likes']) {
+            if(int.parse(coms[j]['likes']) < int.parse(coms[j + 1]['likes'])) {
               Map<String, dynamic> temp = coms[j];
               coms[j] = coms[j + 1];
               coms[j + 1] = temp;
@@ -67,7 +67,7 @@ class _CommentsState extends State<Comments> {
       case "dislikes" :
         for(int i = 0; i < coms.length - 1; i++) {
           for(int j = 0; j < coms.length - i - 1; j++) {
-            if(coms[j]['dislikes'] < coms[j + 1]['dislikes']) {
+            if(int.parse(coms[j]['dislikes']) < int.parse(coms[j + 1]['dislikes'])) {
               Map<String, dynamic> temp = coms[j];
               coms[j] = coms[j + 1];
               coms[j + 1] = temp;
@@ -92,7 +92,7 @@ class _CommentsState extends State<Comments> {
           style: TextStyle(
           fontSize: 28,
           fontWeight: FontWeight.bold,
-          color: Colors.pink,
+          color: Theme.of(context).,
       ),
       ),
       ),
@@ -144,8 +144,7 @@ class _CommentsState extends State<Comments> {
                             setState(() {
                               int currentLikes =
                                   int.tryParse(comment["likes"]) ?? 0;
-                              comment["likes"] =
-                                  (currentLikes + 1).toString();
+                              comment["likes"] = (currentLikes + 1).toString();
                             });
                           },
                           child: Row(
@@ -162,8 +161,7 @@ class _CommentsState extends State<Comments> {
                             setState(() {
                               int currentDislikes =
                                   int.tryParse(comment["dislikes"]) ?? 0;
-                              comment["dislikes"] =
-                                  (currentDislikes + 1).toString();
+                              comment["dislikes"] = (currentDislikes + 1).toString();
                             });
                           },
                           child: Row(
