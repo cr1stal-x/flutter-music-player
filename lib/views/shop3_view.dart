@@ -321,6 +321,7 @@ class _Shop3State extends State<Shop3> {
                 ),
               ),
               //commentPage button
+              SizedBox(height: 20,),
               ElevatedButton(
                 onPressed: () {
                   Navigator.push(

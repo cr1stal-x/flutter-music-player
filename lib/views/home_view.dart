@@ -53,7 +53,7 @@ class HomeView extends StatelessWidget {
             //   ),
             //);
           }, child:Column(children: [SizedBox(height: 6,),Icon(Icons.album_rounded,size: 60,),
-              Text('Albums'), SizedBox(height: 6,)],) ),
+              Text('Server'), SizedBox(height: 6,)],) ),
 
             FilledButton(onPressed: (){
               // Navigator.push(
