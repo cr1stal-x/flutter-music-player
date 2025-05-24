@@ -87,7 +87,7 @@ class SignUpViewModel extends ChangeNotifier {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => UserAccount(),
+          builder: (context) => UserAccount(user: user,),
         ),
       );
 

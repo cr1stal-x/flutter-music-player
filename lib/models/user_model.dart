@@ -1,7 +1,13 @@
 class UserModel {
   final String email;
-  final String password;
-  final String username;
+  late final String password;
+  late final String username;
   UserModel({required this.email, required this.password, required this.username});
   get name =>username;
+  void setName(String n) {
+    username = n;
+  }
+  void setPassword(String pass){
+    password=pass;
+  }
 }

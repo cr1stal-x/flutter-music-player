@@ -9,7 +9,7 @@ class Comments extends StatefulWidget {
 }
 
 class _CommentsState extends State<Comments> {
-  String sortType = "likes";
+  String sortType = "likes"; //default
 
   List<String> sortTypes = ["likes", "dislikes"];
 
@@ -55,7 +55,7 @@ class _CommentsState extends State<Comments> {
       case "likes" :
         for(int i = 0; i < coms.length - 1; i++) {
           for(int j = 0; j < coms.length - i - 1; j++) {
-            if(coms[j]['likes'] < coms[j + 1]['likes']) {
+            if(int.parse(coms[j]['likes']) < int.parse(coms[j + 1]['likes'])) {
               Map<String, dynamic> temp = coms[j];
               coms[j] = coms[j + 1];
               coms[j + 1] = temp;
@@ -67,7 +67,7 @@ class _CommentsState extends State<Comments> {
       case "dislikes" :
         for(int i = 0; i < coms.length - 1; i++) {
           for(int j = 0; j < coms.length - i - 1; j++) {
-            if(coms[j]['dislikes'] < coms[j + 1]['dislikes']) {
+            if(int.parse(coms[j]['dislikes']) < int.parse(coms[j + 1]['dislikes'])) {
               Map<String, dynamic> temp = coms[j];
               coms[j] = coms[j + 1];
               coms[j + 1] = temp;
@@ -84,15 +84,15 @@ class _CommentsState extends State<Comments> {
     List<Map<String, dynamic>> sortedComments = sort(sortType, comments);
 
     return Scaffold(
-      backgroundColor: Color(0xFFFFE4E6),
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
         centerTitle: true,
         title:
-        const Text("Comments",
+        Text("Comments",
           style: TextStyle(
             fontSize: 28,
             fontWeight: FontWeight.bold,
-            color: Colors.pink,
+            color: Theme.of(context).colorScheme.secondary,
           ),
         ),
       ),
@@ -104,13 +104,13 @@ class _CommentsState extends State<Comments> {
               value: sortType,
               decoration: InputDecoration(
                 filled: true,
-                fillColor: Colors.pinkAccent,
+                fillColor: Theme.of(context).colorScheme.primary,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,
                 ),
               ),
-              dropdownColor: Colors.pinkAccent,
+              dropdownColor: Theme.of(context).colorScheme.secondary,
               style: TextStyle(color: Colors.white),
               iconEnabledColor: Colors.white,
               onChanged: (String? newValue) {
@@ -144,8 +144,7 @@ class _CommentsState extends State<Comments> {
                             setState(() {
                               int currentLikes =
                                   int.tryParse(comment["likes"]) ?? 0;
-                              comment["likes"] =
-                                  (currentLikes + 1).toString();
+                              comment["likes"] = (currentLikes + 1).toString();
                             });
                           },
                           child: Row(
@@ -162,8 +161,7 @@ class _CommentsState extends State<Comments> {
                             setState(() {
                               int currentDislikes =
                                   int.tryParse(comment["dislikes"]) ?? 0;
-                              comment["dislikes"] =
-                                  (currentDislikes + 1).toString();
+                              comment["dislikes"] = (currentDislikes + 1).toString();
                             });
                           },
                           child: Row(

@@ -5,7 +5,8 @@ import '../models/user_model.dart';
 import '../view_models/payment_view_model.dart';
 class PaymentView extends StatelessWidget {
   final UserModel user;
-  const PaymentView({super.key, required this.user});
+  final int pay;
+  const PaymentView({super.key, required this.user, required this.pay});
   @override
   Widget build(BuildContext context) {
     final PaymentViewModel vm = PaymentViewModel(userPassword: user.password);
@@ -25,7 +26,7 @@ class PaymentView extends StatelessWidget {
                 Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                   Text("Price: ",style: TextStyle(fontSize: 24),),
-                  Text('200 000', style: TextStyle(fontSize: 24),)
+                  Text('$pay\$', style: TextStyle(fontSize: 24),)
                 ]
                 ),
                 SizedBox(height: 20),

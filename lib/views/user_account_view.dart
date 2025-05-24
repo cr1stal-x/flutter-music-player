@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:musix/models/user_model.dart';
 import 'package:musix/views/payment_view.dart';
 import 'package:musix/views/sign_up_view.dart';
+import '../models/user_model.dart';
+import 'login_view.dart';
 
 class UserAccount extends StatefulWidget {
-  UserAccount({Key? test}) : super(key: test);
+  //UserAccount({Key? test}) : super(key: test);
+  UserModel user;
+
+  UserAccount({Key? test, required this.user}) : super(key: test);
 
   @override
   State<UserAccount> createState() => _UserAccount();
@@ -14,6 +18,8 @@ class _UserAccount extends State<UserAccount> {
   List<String> Tem = ["default", "pink", "orange", "blue"];
   String currentTenTem = "default";
 
+
+/*
   Map<String, dynamic> person = {
     "name": "Sara",
     "username": "Saytania",
@@ -22,21 +28,18 @@ class _UserAccount extends State<UserAccount> {
     "credit": "10.0",
     "isPremium": "normal",
   };
-  final user = UserModel(
-      email: 'sara.ata.ana@gmail.com',
-      password: '1234',
-      username: 'Saytania'
-  );
+
+ */
 
   void edit(String field, String edited) {
     if(field == "username") {
       setState(() {
-        person['username'] = edited;
+        widget.user.setName(edited);
       });
     }
     if (field == "password") {
       setState(() {
-        person['password'] = edited;
+        widget.user.setPassword(edited);
       });
     }
     else
@@ -46,14 +49,14 @@ class _UserAccount extends State<UserAccount> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFFFE4E6),
+      backgroundColor:Theme.of(context).colorScheme.surface,
       appBar: AppBar(
-        title: const Text(
+        title:  Text(
           "User Account",
           style: TextStyle(
             fontSize: 28,
             fontWeight: FontWeight.bold,
-            color: Colors.pink,
+            color: Theme.of(context).colorScheme.secondary,
           ),
         ),
         centerTitle: true,
@@ -70,7 +73,7 @@ class _UserAccount extends State<UserAccount> {
               SizedBox(height: 10),
 
               Text(
-                person["name"],
+                widget.user.name,
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
               SizedBox(height: 30),
@@ -82,7 +85,7 @@ class _UserAccount extends State<UserAccount> {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: Colors.pink),
+                    border: Border.all(color: Theme.of(context).colorScheme.secondary),
                   ),
                   child: Column(
                     children: [
@@ -92,11 +95,11 @@ class _UserAccount extends State<UserAccount> {
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Colors.pink,
+                          color: Theme.of(context).colorScheme.secondary,
                         ),
                       ),
                       Text(
-                        "${person["username"]}",
+                        "${widget.user.name}",
                         textAlign: TextAlign.center,
                         style: TextStyle(fontSize: 18),
                       ),
@@ -107,11 +110,11 @@ class _UserAccount extends State<UserAccount> {
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Colors.pink,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                       ),
                       Text(
-                        "${person["e-mail"]}",
+                        widget.user.email,
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 18,
@@ -122,11 +125,11 @@ class _UserAccount extends State<UserAccount> {
                         onPressed: () {
                           showEditChoiceDialog(context);
                         },
-                        child: Text("Edit Info"),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.pink,
+                          backgroundColor: Theme.of(context).colorScheme.secondary,
                           foregroundColor: Colors.white,
                         ),
+                        child: Text("Edit Info"),
                       ),
                     ],
                   ),
@@ -141,7 +144,7 @@ class _UserAccount extends State<UserAccount> {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: Colors.pink),
+                    border: Border.all(color: Theme.of(context).colorScheme.secondary),
                   ),
                   child: Column(
                     children: [
@@ -150,32 +153,38 @@ class _UserAccount extends State<UserAccount> {
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Colors.pink,
+                          color: Theme.of(context).colorScheme.secondary,
                         ),
                       ),
+                      /*
                       Text("${person["credit"]}\$",
                           style: TextStyle(fontSize: 18)),
                       SizedBox(height: 8),
+
+                       */
                       Text(
                         "Subscription",
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Colors.pink,
+                          color: Theme.of(context).colorScheme.secondary,
                         ),
                       ),
+                      /*
                       Text("${person["isPremium"]}",
                           style: TextStyle(fontSize: 18)),
                       SizedBox(height: 12),
+
+                       */
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           ElevatedButton(
                             onPressed: () {
-                              goToPaymentPage("Increase Credit");
+                              goToPaymentView(widget.user, 2000);
                             },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.pink,
+                              backgroundColor: Theme.of(context).colorScheme.secondary,
                               foregroundColor: Colors.white,
                             ),
                             child: Text("Increase Credit"),
@@ -185,7 +194,7 @@ class _UserAccount extends State<UserAccount> {
                               showPremiumOptions(context);
                             },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.pink,
+                              backgroundColor: Theme.of(context).colorScheme.secondary,
                               foregroundColor: Colors.white,
                             ),
                             child: Text("Buy Premium"),
@@ -208,14 +217,13 @@ class _UserAccount extends State<UserAccount> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) =>
-                                SignUpView(),
+                            builder: (context) => SignUpView(),
                           ),
                         );
                       });
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.redAccent,
+                      backgroundColor: Theme.of(context).colorScheme.primary,
                       foregroundColor: Colors.white,
                     ),
                     child: Text("Want to delete account?"),
@@ -223,17 +231,20 @@ class _UserAccount extends State<UserAccount> {
                   ElevatedButton(
                     onPressed: () {
                       Future.delayed(Duration(seconds: 1), () {
-                        //Navigator.push(
-                        //context,
-                        //MaterialPageRoute(
-                        //builder: (context) =>
-                        //PaymentPage(plan: "Chat with Admin"),
-                        //),
-                        //);
+                        /*
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                PaymentPage(plan: "Chat with Admin"),
+                          ),
+                        );
+
+                         */
                       });
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.lightBlue,
+                      backgroundColor: Theme.of(context).colorScheme.inversePrimary,
                       foregroundColor: Colors.white,
                     ),
                     child: Text("Chat with admin"),
@@ -244,14 +255,14 @@ class _UserAccount extends State<UserAccount> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => SignUpView(),
+                          builder: (context) => Login(),
                         ),
                       );
                     },
                     child: Text(
                       "Sign Out",
                       style: TextStyle(
-                        color: Colors.pink,
+                        color: Theme.of(context).colorScheme.secondary,
                         decoration: TextDecoration.underline,
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -287,7 +298,7 @@ class _UserAccount extends State<UserAccount> {
                   showEditInputDialog(context, "username");
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.pink,
+                  backgroundColor: Theme.of(context).colorScheme.secondary,
                   foregroundColor: Colors.white,
                 ),
                 child: const Text("Username"),
@@ -300,8 +311,8 @@ class _UserAccount extends State<UserAccount> {
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white,
-                  foregroundColor: Colors.pink,
-                  side: const BorderSide(color: Colors.pink),
+                  foregroundColor: Theme.of(context).colorScheme.secondary,
+                  side: BorderSide(color: Theme.of(context).colorScheme.secondary),
                 ),
                 child: const Text("Password"),
               ),
@@ -339,8 +350,8 @@ class _UserAccount extends State<UserAccount> {
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
-                    foregroundColor: Colors.pink,
-                    side: BorderSide(color: Colors.pink),
+                    foregroundColor: Theme.of(context).colorScheme.secondary,
+                    side: BorderSide(color: Theme.of(context).colorScheme.secondary),
                   ),
                   child: Text("Cancel"),
                 ),
@@ -357,7 +368,7 @@ class _UserAccount extends State<UserAccount> {
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.pink,
+                    backgroundColor: Theme.of(context).colorScheme.secondary,
                     foregroundColor: Colors.white,
                   ),
                   child: Text("Save"),
@@ -386,37 +397,37 @@ class _UserAccount extends State<UserAccount> {
               ElevatedButton(
                 onPressed: () {
                   Navigator.pop(context);
-                  goToPaymentPage("Monthly Subscription");
+                  goToPaymentView(widget.user,5);
                 },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  foregroundColor: Colors.white,
+                ),
                 child: Text("Monthly Subscription: 5.0\$"),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.pinkAccent,
-                  foregroundColor: Colors.white,
-                ),
               ),
               SizedBox(height: 10),
               ElevatedButton(
                 onPressed: () {
                   Navigator.pop(context);
-                  goToPaymentPage("3-Month Subscription:");
+                  goToPaymentView(widget.user, 10);
                 },
-                child: Text("3-Month Subscription: 10.2\$"),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.lightBlue,
+                  backgroundColor: Theme.of(context).colorScheme.inversePrimary,
                   foregroundColor: Colors.white,
                 ),
+                child: Text("3-Month Subscription: 10\$"),
               ),
               SizedBox(height: 10),
               ElevatedButton(
                 onPressed: () {
                   Navigator.pop(context);
-                  goToPaymentPage("Yearly Subscription:");
+                  goToPaymentView(widget.user, 30);
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.deepPurple,
+                  backgroundColor: Theme.of(context).colorScheme.primary,
                   foregroundColor: Colors.white,
                 ),
-                child: Text("Yearly Subscription: 30.0\$"),
+                child: Text("Yearly Subscription: 30\$"),
               ),
             ],
           ),
@@ -425,11 +436,12 @@ class _UserAccount extends State<UserAccount> {
     );
   }
 
-  void goToPaymentPage(String plan) {
+  void goToPaymentView(UserModel user, int pay) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => PaymentView(user: user,),
+        //builder: (context) => PaymentPage(plan: plan),
+        builder: (context) => PaymentView(user: user, pay: pay),
       ),
     );
   }

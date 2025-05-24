@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:musix/views/shop3_view.dart';
-import 'shop3_view.dart';
-import 'user_account_view.dart';
 
 class Shop2 extends StatefulWidget {
 
@@ -169,8 +167,9 @@ class _Shop2State extends State<Shop2> {
 
     for(int i = 0; i < songs.length; i++) {
       String songName = songs[i]['songName'].toString().toLowerCase();
-      if(songName.contains(searching))
+      if(songName.contains(searching)) {
         filteredSongs.add(songs[i]);
+      }
     }
     return filteredSongs;
   }
@@ -227,14 +226,14 @@ class _Shop2State extends State<Shop2> {
     );
 
     return Scaffold(
-      backgroundColor: Color(0xFFFFE4E6),
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).colorScheme.primary,
         centerTitle: true,
         title: Text(
           widget.category,
-          style: const TextStyle(
-            color: Colors.pink,
+          style: TextStyle(
+            color:  Colors.white,
             fontSize: 22,
             fontWeight: FontWeight.bold,
           ),
@@ -266,13 +265,13 @@ class _Shop2State extends State<Shop2> {
               value: selectedSortType,
               decoration: InputDecoration(
                 filled: true,
-                fillColor: Colors.pinkAccent,
+                fillColor:  Theme.of(context).colorScheme.primary,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,
                 ),
               ),
-              dropdownColor: Colors.pinkAccent,
+              dropdownColor:  Theme.of(context).colorScheme.primary,
               style: TextStyle(color: Colors.white),
               iconEnabledColor: Colors.white,
               onChanged: (String? newValue) {

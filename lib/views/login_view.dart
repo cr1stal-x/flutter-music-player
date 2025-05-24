@@ -1,9 +1,15 @@
-import 'package:flutter/material.dart';
 import 'package:musix/views/sign_up_view.dart';
+import 'package:musix/views/user_account_view.dart';
+
+import '../views/shop2_view.dart';
+import 'package:flutter/material.dart';
+import '../models/user_model.dart';
 
 class Login extends StatefulWidget {
 
-  Login({Key? test}) : super(key: test);
+  //UserModel user;
+  //Login({Key? test, required this.user}) : super(key: test);
+  const Login({Key? test}) : super(key: test);
 
   //making state for this page
   @override
@@ -19,18 +25,19 @@ class _LoginState extends State<Login> {
   String? _welcome;
 
   //just for test!
-  final Map<String, String> _users = {
-    'Sara': '1234',
-    'ata': 'testPass',
-    'ana' : '0000'
-  };
+
+  final user = UserModel(
+      email: "sample@gmail.com",
+      password: "ghghGH45",
+      username: "Saytania"
+  );
 
   //methods:
   void _login() {
     final username = _username.text.trim(); //for remove spaces
     final password = _password.text;
 
-    if(_users[username] == null) {
+    if(user.name!=username && user.email!=username) {
       setState(() {
         _error = 'can not find a person with this name!';
         _welcome = null;
@@ -38,7 +45,7 @@ class _LoginState extends State<Login> {
       return;
     }
 
-    else if(_users[username] != password) {
+    else if(user.password!=password) {
       setState(() {
         _error = 'incorrect password';
         _welcome = null;
@@ -48,23 +55,24 @@ class _LoginState extends State<Login> {
 
     setState(() {
       _error = null;
-      _welcome = 'Logged in successfully✅ welcome ${username}!';
+      _welcome = 'Logged in successfully✅ welcome $username!';
     });
+    Navigator.push(context, MaterialPageRoute(builder: (context)=>UserAccount(user: user)));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold( //totalPage
-        backgroundColor: Color(0xFFFFE4E6), //lightPink
+        backgroundColor: Theme.of(context).colorScheme.surface, //lightPink
         appBar: AppBar( //topOfPage
           centerTitle: true, //center
           title:
-          const Text(
+           Text(
             "Login to user account",
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.bold,
-              color: Colors.pink,
+              color: Theme.of(context).colorScheme.secondary,
             ),
           ),
           //centerTitle: true,
@@ -77,12 +85,12 @@ class _LoginState extends State<Login> {
             mainAxisAlignment: MainAxisAlignment.center, //center
             children: [
               //welcome box
-              const Text(
+               Text(
                 "Welcome!",
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
-                  color: Colors.pink,
+                  color:  Theme.of(context).colorScheme.secondary,
                 ),
               ),
               const SizedBox(height: 20),
@@ -98,8 +106,6 @@ class _LoginState extends State<Login> {
                     border: OutlineInputBorder( //cadr
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    filled: true, //necessary to set color for background
-                    fillColor: Colors.white,
                   ),
                   controller: _username,
                 ),
@@ -117,8 +123,6 @@ class _LoginState extends State<Login> {
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    filled: true, //necessary to set color for background
-                    fillColor: Colors.white,//?
                   ),
                   controller: _password,
                   obscureText: true, //hide the letters
@@ -154,7 +158,7 @@ class _LoginState extends State<Login> {
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 10),
                     textStyle: const TextStyle(fontSize: 16),
-                    backgroundColor: Colors.pink,
+                    backgroundColor:  Theme.of(context).colorScheme.secondary,
                     foregroundColor: Colors.white,
                   ),
                 ),
@@ -162,26 +166,28 @@ class _LoginState extends State<Login> {
               const SizedBox(height: 24),
 
               //goto signup page
+
               GestureDetector(//make widget clickAble
                 onTap: () {
                   Navigator.push(
                     context,
+                    //MaterialPageRoute(builder: (context) => SignUp()),
                     MaterialPageRoute(builder: (context) => SignUpView()),
                   );
                 },
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 12),
-                  decoration: const BoxDecoration(
+                  decoration:  BoxDecoration(
                     border: Border(
-                      top: BorderSide(width: 1.5, color: Colors.pink),
-                      bottom: BorderSide(width: 1.5, color: Colors.pink),
+                      top: BorderSide(width: 1.5, color:  Theme.of(context).colorScheme.secondary),
+                      bottom: BorderSide(width: 1.5, color:  Theme.of(context).colorScheme.secondary),
                     ),
                   ),
-                  child: const Text(
+                  child:  Text(
                     "don't have account? SignUp",
                     style: TextStyle(
                       fontSize: 16,
-                      color: Colors.pink,
+                      color:  Theme.of(context).colorScheme.secondary,
                       fontWeight: FontWeight.w600,
                       decoration: TextDecoration.none,
                     ),
@@ -194,11 +200,11 @@ class _LoginState extends State<Login> {
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   decoration: const BoxDecoration(
                   ),
-                  child: const Text(
+                  child: Text(
                     "forget password?",
                     style: TextStyle(
                       fontSize: 16,
-                      color: Colors.lightBlue,
+                      color:  Theme.of(context).colorScheme.inversePrimary,
                       fontWeight: FontWeight.w600,
                       decoration: TextDecoration.none,
                     ),

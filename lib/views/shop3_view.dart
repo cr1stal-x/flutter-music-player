@@ -1,6 +1,7 @@
-import 'comment_view.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
+import '../models/song_model.dart';
+import 'comment_view.dart';
 
 class Shop3 extends StatefulWidget {
 
@@ -119,6 +120,22 @@ class _Shop3State extends State<Shop3> {
         playable = true;
         downloadable = true;
       });
+      //goto homePage
+
+      Song fixedSong = Song(
+        songName: mySong['songName'] ?? "Unknown",
+        artistName: mySong['singer'] ?? "Unknown",
+        albumArtImagePath: mySong['image'] ?? "assets/default.jpg",
+        audioPath: mySong['audio'] ?? "assets/audio/default.mp3",
+      );
+
+      // Navigator.push(
+      //   context,
+      //   MaterialPageRoute(
+      //     builder: (context) => (song: fixedSong),
+      //   ),
+      // );
+
     }
     else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -128,12 +145,12 @@ class _Shop3State extends State<Shop3> {
   }
 
   void buyTheSong() {
-    if(mySong['price'] != 0 && widget.isPremium) {
+    if(mySong['price'] != 0 && !widget.isPremium) {
       if(credit >= mySong['price']) {
         setState(() { //refresh
           credit -= mySong['price'];
           downloadable = true;
-          playable = true;
+          //playable = true;
         });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Song purchased successfully 🛒")),
@@ -157,16 +174,16 @@ class _Shop3State extends State<Shop3> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFFFE4E6),
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
         centerTitle: true,
         title:
-        const Text(
+         Text(
           "Song Details",
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 28,
             fontWeight: FontWeight.bold,
-            color: Colors.pink,
+            color: Theme.of(context).colorScheme.secondary,
           ),
         ),
 
@@ -208,23 +225,23 @@ class _Shop3State extends State<Shop3> {
 
               SizedBox(height: 20),
 
-              if(mySong['price'] != 0 && widget.isPremium && !downloadable)
+              if(mySong['price'] != 0 && !widget.isPremium && !downloadable)
                 ElevatedButton(
                   onPressed: buyTheSong,
+                  child: Text('Buy Song for \$${mySong['price'].toStringAsFixed(2)}'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.pinkAccent,
+                    backgroundColor: Theme.of(context).colorScheme.primary,
                     foregroundColor: Colors.white,
                   ),
-                  child: Text('Buy Song for \$${mySong['price'].toStringAsFixed(2)}'),
                 )
               else
                 ElevatedButton(
                   onPressed: () => downloadTheSong(mySong),
+                  child: Text('Download Song'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.lightBlue,
+                    backgroundColor: Theme.of(context).colorScheme.inversePrimary,
                     foregroundColor: Colors.white,
                   ),
-                  child: Text('Download Song'),
                 ),
 
               //play button
@@ -241,7 +258,7 @@ class _Shop3State extends State<Shop3> {
                   icon: Icon(isPlaying ? Icons.pause : Icons.play_arrow),
                   label: Text(isPlaying ? "Pause" : "Play"),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: isPlaying ? Colors.lightBlue : Colors.pink,
+                    backgroundColor: isPlaying ? Theme.of(context).colorScheme.inversePrimary : Theme.of(context).colorScheme.secondary,
                     foregroundColor: Colors.white,
                   ),
                 ),
@@ -286,6 +303,9 @@ class _Shop3State extends State<Shop3> {
                     //sending
                     IconButton(
                       onPressed: () {
+                        if(_comment.text.trim() == null)
+                          return;
+
                         setState(() {
                           myComment = {
                             "com": _comment.text.trim(),
@@ -311,10 +331,9 @@ class _Shop3State extends State<Shop3> {
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.pink,
+                  backgroundColor: Theme.of(context).colorScheme.secondary,
                   foregroundColor: Colors.white,
                 ),
-
                 child: Text("See Other Comments"),
               ),
             ],
@@ -335,26 +354,4 @@ class _Shop3State extends State<Shop3> {
 
   int currentPosition = 0;
   int maxDuration = 10;
-
-  void startTimer() {
-    _timer?.cancel();
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
-      if(currentPosition < maxDuration) {
-        setState(() {
-          currentPosition++;
-        });
-      }
-      else {
-        timer.cancel();
-        setState(() {
-          isPlaying = false;
-          currentPosition = 0;
-        });
-      }
-    });
-  }
-
-  void stopTimer() {
-    _timer?.cancel();
-  }
 }
