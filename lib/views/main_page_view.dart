@@ -5,8 +5,8 @@ import '../views/home_view.dart';
 import '../views/shop_view.dart';
 
 class MainPage extends StatefulWidget {
-  final int initialTabIndex;
-  const MainPage({super.key, this.initialTabIndex = 1}); // Default: Home
+  final int tabIndex;
+  const MainPage({super.key, this.tabIndex = 1}); // Default: Home
 
   @override
   State<MainPage> createState() => _MainPageState();
@@ -24,7 +24,7 @@ class _MainPageState extends State<MainPage> {
   @override
   void initState() {
     super.initState();
-    _currentIndex = widget.initialTabIndex;
+    _currentIndex = widget.tabIndex;
   }
 
   @override

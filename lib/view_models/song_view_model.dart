@@ -8,7 +8,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 class SongViewModel extends ChangeNotifier {
   final AudioPlayer _player = AudioPlayer();
   final OnAudioQuery _audioQuery = OnAudioQuery();
-
   List<SongModel> _songs = [];
   int _currentIndex = 0;
   Duration _position = Duration.zero;

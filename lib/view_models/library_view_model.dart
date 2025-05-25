@@ -7,16 +7,16 @@ import '../views/tracks_view.dart';
 class LibraryViewModel extends ChangeNotifier {
   final OnAudioQuery _audioQuery = OnAudioQuery();
   List<ModifiedSong> _allSongs = [];
-  List<ModifiedSong> _displayedSongs = [];
+  List<ModifiedSong> _chosenSongs = [];
   final searchController = TextEditingController();
 
   bool _loading = false;
   SortOption _currentSort = SortOption.title;
-  String _searchQuery = "";
+  String _searched = "";
 
   bool get loading => _loading;
   SortOption get currentSort => _currentSort;
-  List<ModifiedSong> get allSongs => _displayedSongs;
+  List<ModifiedSong> get allSongs => _chosenSongs;
 
   Future<void> loadSongs() async {
     _loading = true;
@@ -29,14 +29,14 @@ class LibraryViewModel extends ChangeNotifier {
       return;
     }
 
-    final rawSongs = await _audioQuery.querySongs();
+    final primarySongs = await _audioQuery.querySongs();
 
-    _allSongs = await Future.wait(rawSongs.map((s) async {
+    _allSongs = await Future.wait(primarySongs.map((s) async {
       DateTime modified;
       try {
         modified = await File(s.data).lastModified();
       } catch (_) {
-        modified = DateTime(1000000000000);
+        modified = DateTime(-1000000000000);
       }
       return ModifiedSong(song: s, modified: modified);
     }));
@@ -47,7 +47,7 @@ class LibraryViewModel extends ChangeNotifier {
   }
 
   void search(String query) {
-    _searchQuery = query.toLowerCase();
+    _searched = query.toLowerCase();
     _updateDisplayedSongs(_getFilterSongs());
     notifyListeners();
   }
@@ -62,7 +62,7 @@ class LibraryViewModel extends ChangeNotifier {
     return _allSongs.where((s) {
       final title = s.song.title.toLowerCase();
       final artist = (s.song.artist ?? "").toLowerCase();
-      return title.contains(_searchQuery) || artist.contains(_searchQuery);
+      return title.contains(_searched) || artist.contains(_searched);
     }).toList();
   }
 
@@ -84,7 +84,7 @@ class LibraryViewModel extends ChangeNotifier {
   }
 
   void _updateDisplayedSongs(List<ModifiedSong> songs) {
-    _displayedSongs = songs;
+    _chosenSongs = songs;
   }
 
   @override

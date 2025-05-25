@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:musix/views/drawer.dart';
-import 'package:musix/views/payment_view.dart';
 import 'package:musix/views/shop2_view.dart';
 
 class ShopPage extends StatelessWidget {
@@ -18,7 +17,7 @@ class ShopPage extends StatelessWidget {
         title: const Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('Trending', style: TextStyle(color: Colors.black)),
+            Text('Shop', style: TextStyle(color: Colors.black)),
             Icon(Icons.settings, color: Colors.black),
           ],
         ),

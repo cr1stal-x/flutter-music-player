@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:musix/views/contactUs_view.dart';
 import 'package:musix/views/payment_view.dart';
 import 'package:musix/views/sign_up_view.dart';
 import '../models/user_model.dart';
@@ -231,16 +232,14 @@ class _UserAccount extends State<UserAccount> {
                   ElevatedButton(
                     onPressed: () {
                       Future.delayed(Duration(seconds: 1), () {
-                        /*
+
                         Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) =>
-                                PaymentPage(plan: "Chat with Admin"),
+                              AboutUs(),
                           ),
                         );
-
-                         */
                       });
                     },
                     style: ElevatedButton.styleFrom(

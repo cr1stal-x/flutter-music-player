@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class Comments extends StatefulWidget {
   final Map<String, dynamic>? myComment;
-  Comments({Key? test, this.myComment}) : super(key: test);
+  const Comments({Key? test, this.myComment}) : super(key: test);
 
   @override
   State<Comments> createState() => _CommentsState();

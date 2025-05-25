@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:musix/views/user_account_view.dart';
 import 'package:provider/provider.dart';
 
 import '../models/user_model.dart';
@@ -70,7 +71,7 @@ class PaymentView extends StatelessWidget {
                   children:[ElevatedButton(
                     onPressed: () {
                       vm.processPayment();
-                      if (vm.paymentSuccess) {
+                      if (vm.isSuccess) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text('Payment complete!')),
                         );
@@ -105,7 +106,7 @@ class PaymentView extends StatelessWidget {
                                         ScaffoldMessenger.of(context).showSnackBar(
                                           SnackBar(content: Center(child: Text('Payment Canceled.'))),
                                         );
-                                        Navigator.of(context).pop();
+                                        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>UserAccount(user: user)));
                                       },
                                       style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
                                       child: Text('Yes'),

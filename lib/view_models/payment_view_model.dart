@@ -6,7 +6,7 @@ class PaymentViewModel extends ChangeNotifier {
   String cardNumber = '';
   String password = '';
   String? errorMessage;
-  bool paymentSuccess = false;
+  bool isSuccess = false;
 
   void updateCardNumber(String value) {
     cardNumber = value;
@@ -21,10 +21,10 @@ class PaymentViewModel extends ChangeNotifier {
   void processPayment() {
     final expectedPassword = userPassword.substring(userPassword.length - 4);
     if (password == expectedPassword) {
-      paymentSuccess = true;
+      isSuccess = true;
       errorMessage = null;
     } else {
-      paymentSuccess = false;
+      isSuccess = false;
       errorMessage = 'Wrong password!';
     }
     notifyListeners();
