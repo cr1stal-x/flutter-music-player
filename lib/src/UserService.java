@@ -121,5 +121,60 @@ public class UserSevice {
         u.setPassword("defaultPassword123");
         System.out.println("Password recovery instructions sent to " + u.getEmail());
     }
+    public void likeComment(user u, Comment c) {
+        //TODO
+        c.setLikes(c.getLikes() + 1);
+        System.out.println(u.getUsername() + " liked the comment: " + c.getText());
+    }
+    public void dislikeComment(user u, Comment c) {
+        //TODO
+        c.setDislikes(c.getDislikes() + 1);
+        System.out.println(u.getUsername() + " disliked the comment: " + c.getText());
+    }
+    public void addComment(user u, Comment c, song s) {
+        //TODO
+        s.addComment(c);
+        System.out.println(u.getUsername() + " added a comment: " + c.getText());
+    }
+    public void removeComment(user u, Comment c, song s) {
+        //TODO
+        s.removeComment(c);
+        System.out.println(u.getUsername() + " removed a comment: " + c.getText());
+    }
+    public void editComment(user u, Comment c, String newText) {
+        //TODO
+        c.setText(newText);
+        c.setLikes(0);
+        c.setDislikes(0);
+        System.out.println(u.getUsername() + " edited a comment to: " + newText);
+    }
+    public void buySong(user u, song s) {
+        if (u.getCredit() >= s.getPrice()) {
+            u.setCredit(u.getCredit() - s.getPrice());
+            System.out.println(u.getUsername() + " bought the song: " + s.getTitle());
+        } else {
+            System.out.println("Not enough credit to buy the song: " + s.getTitle());
+        }
+    }
+    public void downloadSong(user u, song s) {
+        u.addDownloadedSong(s);
+        u.setCredit(u.getCredit() - s.getPrice());
+        if (u.getCredit() < 0) {
+            u.setCredit(0);}
+        System.out.println(u.getUsername() + " downloaded the song: " + s.getTitle());
+    }
+    public boolean login(String name, String pass) {
+        for (user u : users) {
+            if (u.getUsername().equals(name) && u.getPassword().equals(pass)) {
+                System.out.println("Login successful for user: " + name);
+                return true;
+            }
+        }
+        System.out.println("Login failed for user: " + name);
+        return false;
+    }
+    public void signup(user u) {
+        addUser(u);
+    }
 
 }

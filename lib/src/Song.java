@@ -1,3 +1,6 @@
+import java.util.ArrayList;
+import java.util.List;
+
 public class song {
     private String title;
     private String artist;
@@ -9,6 +12,9 @@ public class song {
     private String coverImageUrl;
     private String songUrl;
     private String songId;
+    private double price;
+    private List<Double> ratings;
+    private List<Comment> comments;
     public song(String title, String artist, String album, String genre, int duration, String releaseDate, String lyrics, String coverImageUrl, String songUrl, String songId) {
         this.title = title;
         this.artist = artist;
@@ -20,7 +26,9 @@ public class song {
         this.coverImageUrl = coverImageUrl;
         this.songUrl = songUrl;
         this.songId = songId;
-    }
+        price = 0.0;
+        ratings = new ArrayList<>();
+        comments = new ArrayList<>();}
     public song(String title, String artist, String album, String songId) {
         this(title, artist, album, "Unknown", 0, "Unknown", "No lyrics available", "No cover image", "No song URL", songId);
     }
@@ -89,23 +97,40 @@ public class song {
                 ", songId='" + songId + '\'' +
                 '}';
     }
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof song)) return false;
-
-        song song = (song) o;
-
-        if (duration != song.duration) return false;
-        if (!title.equals(song.title)) return false;
-        if (!artist.equals(song.artist)) return false;
-        if (!album.equals(song.album)) return false;
-        if (!genre.equals(song.genre)) return false;
-        if (!releaseDate.equals(song.releaseDate)) return false;
-        if (!lyrics.equals(song.lyrics)) return false;
-        if (!coverImageUrl.equals(song.coverImageUrl)) return false;
-        if (!songUrl.equals(song.songUrl)) return false;
-        return songId.equals(song.songId);
+    public double getPrice() {
+        return price;
     }
+    public void setPrice(double price) {
+        this.price = price;}
+    public double getAvgRating() {
+        if (ratings.isEmpty()) {
+            return 0.0;
+        }
+        double sum = 0.0;
+        for (double rating : ratings) {
+            sum += rating;
+        }
+        return sum / ratings.size();
+    }
+    public void setRating(double rating) {
+        if (rating >= 0 && rating <= 5) {
+            ratings.add(rating);
+        } else {
+            System.out.println("Rating must be between 0 and 5.");
+        }
+    }
+    public List<Double> getRatings() {
+        return ratings;
+    }
+    public List<Comment> getComments() {
+        return comments;
+    }
+    public void addComment(Comment comment) {
+        comments.add(comment);
+    }
+    public void removeComment(Comment comment) {
+        comments.remove(comment);
+    }
+
 
 }

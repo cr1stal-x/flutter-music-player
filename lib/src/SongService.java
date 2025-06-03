@@ -43,5 +43,8 @@ public class SongService {
     public void editSongImage(song s, String coverImageUrl){
         s.setCoverImageUrl(coverImageUrl);
     }
+    public void rateSong(song s, double rating) {
+        s.setRating(rating);
+    }
 
 }

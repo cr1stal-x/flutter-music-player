@@ -64,18 +64,6 @@ public class user {
                 ", email='" + email + '\'' +
                 '}';
     }
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof user)) return false;
-
-        user user = (user) o;
-
-        if (!name.equals(user.name)) return false;
-        if (!usaername.equals(user.usaername)) return false;
-        if (!password.equals(user.password)) return false;
-        return email.equals(user.email);
-    }
     public List<PlayList> getPlayLists() {
         return playLists;
     }
@@ -102,5 +90,10 @@ public class user {
     }
     public void removePlayList(PlayList playList) {
         playLists.remove(playList);
+    }
+    public void addDownloadedSong(song s) {
+        if (!downloadedSongs.contains(s)) {
+            downloadedSongs.add(s);
+        }
     }
 }
