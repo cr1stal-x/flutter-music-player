@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:musix/views/drawer.dart';
+import 'package:musix/views/server_view.dart';
 import 'package:musix/views/shop2_view.dart';
 
 class ShopPage extends StatelessWidget {
@@ -45,7 +46,7 @@ class ShopPage extends StatelessWidget {
                         onTap: (){Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => Shop2(category: categories[index]),
+                            builder: (context) => SongsListView(),
                           ),
                         );},
                         child: ClipRRect(

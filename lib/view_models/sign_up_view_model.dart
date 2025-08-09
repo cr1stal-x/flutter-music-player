@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:musix/testClient.dart';
 import 'package:musix/views/main_page_view.dart';
 import 'package:musix/views/payment_view.dart';
 import 'package:musix/views/user_account_view.dart';
+import 'package:provider/provider.dart';
+import '../Auth.dart';
 import '../models/user_model.dart';
 
 class SignUpViewModel extends ChangeNotifier {
   final formKey = GlobalKey<FormState>();
-
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
@@ -73,38 +75,54 @@ class SignUpViewModel extends ChangeNotifier {
     return null;
   }
   String? validateUserName(String? value){
-  //   backend
 
+    if (value == null || value.isEmpty) {
+      return 'Username is required';
+    } else if (value.length < 3) {
+      return 'Username too short';
+    }
+    return null;
   }
 
-  void signUp(BuildContext context) {
-    final user = UserModel(
-      email: emailController.text,
-      password: passwordController.text,
-      username: userNameController.text
-  );
-    if (formKey.currentState!.validate()) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => UserAccount(user: user,),
-        ),
-      );
 
+  Future<void> signUp(BuildContext context) async {
+    if (!formKey.currentState!.validate()) return;
 
+    final auth = Provider.of<AuthProvider>(context, listen: false);
+    final client = Provider.of<CommandClient>(context, listen: false);
+
+    final success = await auth.signUp(
+      userNameController.text,
+      emailController.text,
+      passwordController.text,
+      client,
+    );
+
+    if (success) {
       formKey.currentState?.reset();
       emailController.clear();
       passwordController.clear();
       confirmPasswordController.clear();
+      userNameController.clear();
       passwordStrength = '';
       notifyListeners();
 
-
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Center(child: Text('Sign up complete!',)),),
+        const SnackBar(content: Center(child: Text('SignUp complete!'))),
+      );
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => UserAccount()),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('SignUp failed!')),
       );
     }
   }
+
+
 
   @override
   void dispose() {

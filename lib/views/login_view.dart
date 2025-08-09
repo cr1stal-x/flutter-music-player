@@ -1,71 +1,59 @@
 import 'package:musix/views/sign_up_view.dart';
 import 'package:musix/views/user_account_view.dart';
-
-import '../views/shop2_view.dart';
+import 'package:provider/provider.dart';
+import '../Auth.dart';
+import '../testClient.dart';
 import 'package:flutter/material.dart';
-import '../models/user_model.dart';
 
 class Login extends StatefulWidget {
 
-  //UserModel user;
-  //Login({Key? test, required this.user}) : super(key: test);
   const Login({Key? test}) : super(key: test);
 
-  //making state for this page
   @override
   State<Login> createState() => _LoginState();
 }
 
 class _LoginState extends State<Login> {
 
-  //fields: 2 text & 1 error
   final TextEditingController _username = TextEditingController();
   final TextEditingController _password = TextEditingController();
   String? _error;
   String? _welcome;
 
-  //just for test!
 
-  final user = UserModel(
-      email: "sample@gmail.com",
-      password: "ghghGH45",
-      username: "Saytania"
-  );
-
-  //methods:
-  void _login() {
-    final username = _username.text.trim(); //for remove spaces
+  void _login() async {
+    final username = _username.text.trim();
     final password = _password.text;
 
-    if(user.name!=username && user.email!=username) {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final client = Provider.of<CommandClient>(context, listen: false);
+
+    final success = await authProvider.login(username, password, client);
+    if (success) {
       setState(() {
-        _error = 'can not find a person with this name!';
+        _error = null;
+        _welcome = 'Logged in successfully✅ welcome $username!';
+      });
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => UserAccount()),
+      );
+    } else {
+      setState(() {
+        _error = 'Login failed. Check your username or password.';
         _welcome = null;
       });
-      return;
     }
-
-    else if(user.password!=password) {
-      setState(() {
-        _error = 'incorrect password';
-        _welcome = null;
-      });
-      return;
-    }
-
-    setState(() {
-      _error = null;
-      _welcome = 'Logged in successfully✅ welcome $username!';
-    });
-    Navigator.push(context, MaterialPageRoute(builder: (context)=>UserAccount(user: user)));
   }
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold( //totalPage
         backgroundColor: Theme.of(context).colorScheme.surface, //lightPink
         appBar: AppBar( //topOfPage
-          centerTitle: true, //center
+          centerTitle: true,
           title:
            Text(
             "Login to user account",
@@ -169,7 +157,7 @@ class _LoginState extends State<Login> {
 
               GestureDetector(//make widget clickAble
                 onTap: () {
-                  Navigator.push(
+                  Navigator.pushReplacement(
                     context,
                     //MaterialPageRoute(builder: (context) => SignUp()),
                     MaterialPageRoute(builder: (context) => SignUpView()),

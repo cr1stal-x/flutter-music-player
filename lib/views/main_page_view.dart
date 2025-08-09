@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:musix/views/drawer.dart';
+import 'package:musix/views/user_account_view.dart';
+import 'package:provider/provider.dart';
+import '../Auth.dart';
 import '../views/sign_up_view.dart';
 import '../views/home_view.dart';
 import '../views/shop_view.dart';
@@ -8,6 +11,7 @@ class MainPage extends StatefulWidget {
   final int tabIndex;
   const MainPage({super.key, this.tabIndex = 1}); // Default: Home
 
+
   @override
   State<MainPage> createState() => _MainPageState();
 }
@@ -15,11 +19,7 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   late int _currentIndex;
 
-  final List<Widget> _pages = const [
-    SignUpView(),
-    HomeView(),
-    ShopPage(),
-  ];
+
 
   @override
   void initState() {
@@ -29,6 +29,12 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isAuthenticated = Provider.of<AuthProvider>(context).isAuthenticated;
+    final List<Widget> _pages = [
+      isAuthenticated ? UserAccount() : SignUpView(),
+      HomeView(),
+      ShopPage(),
+    ];
     return Scaffold(
       body: IndexedStack(
         index: _currentIndex,

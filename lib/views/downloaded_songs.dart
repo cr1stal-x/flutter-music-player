@@ -1,20 +1,16 @@
-import 'dart:convert';
-import 'dart:io';
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
-import 'package:path_provider/path_provider.dart';
 import '../testClient.dart';
+import 'ServerPlayer.dart';
 
-class SongsListView extends StatefulWidget {
-  const SongsListView({Key? key}) : super(key: key);
+class DownloadedSongsView extends StatefulWidget {
+  const DownloadedSongsView({Key? key}) : super(key: key);
 
   @override
-  State<SongsListView> createState() => _SongsListViewState();
+  State<DownloadedSongsView> createState() => _DownloadedSongsViewState();
 }
 
-class _SongsListViewState extends State<SongsListView> {
+class _DownloadedSongsViewState extends State<DownloadedSongsView> {
   List<Map<String, dynamic>> songs = [];
   bool isLoading = true;
   String? error;
@@ -28,11 +24,11 @@ class _SongsListViewState extends State<SongsListView> {
   Future<void> loadSongs() async {
     try {
       final client = Provider.of<CommandClient>(context, listen: false);
-      final result = await client.sendCommand("GetServerSongs");
+      final result = await client.sendCommand("GetDownloadedSongs");
 
       setState(() {
         songs = List<Map<String, dynamic>>.from(result["songs"]);
-        Provider.of<SongProvider>(context, listen: false).setSongs(songs);
+        Provider.of<DownloadedSongProvider>(context, listen: false).setSongs(songs);
         isLoading = false;
       });
     } catch (e) {
@@ -43,68 +39,18 @@ class _SongsListViewState extends State<SongsListView> {
     }
   }
 
-  Future<void> _downloadSong(Map<String, dynamic> song) async {
-    final songId = song['id'];
-    final songTitle = (song['title'] ?? 'Unknown').toString().replaceAll(' ', '_');
 
-    final client = Provider.of<CommandClient>(context, listen: false);
-    final response = await client.sendCommand(
-      'DownloadSong',
-      extraData: {'songId': songId},
-    );
-
-    if (response['status-code'] == 200) {
-      final String? base64Data = response['song_base64'];
-
-      if (base64Data != null) {
-        Uint8List bytes = base64Decode(base64Data);
-
-        var status = await Permission.storage.request();
-        if (!status.isGranted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("❌ Storage permission denied")),
-          );
-          return;
-        }
-
-        Directory? downloadsDir = Directory('/storage/emulated/0/Download');
-        if (!await downloadsDir.exists()) {
-          downloadsDir = await getExternalStorageDirectory();
-        }
-        final musixDir = Directory("${downloadsDir!.path}/Musix");
-        if (!await musixDir.exists()) {
-          await musixDir.create(recursive: true);
-        }
-
-        final filePath = "${musixDir.path}/$songTitle.mp3";
-        final file = File(filePath);
-        await file.writeAsBytes(bytes);
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("✅ $songTitle saved at $filePath")),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('❌ No song data in response')),
-        );
-      }
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(response['message'] ?? 'Failed to download song')),
-      );
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
     if (isLoading) return const Center(child: CircularProgressIndicator());
     if (error != null) return Center(child: Text("Error: $error"));
-    final provider = Provider.of<SongProvider>(context);
+    final provider = Provider.of<DownloadedSongProvider>(context);
     final songs = provider.filteredSongs;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Songs"),
+        title: const Text("Downloaded Songs"),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(50),
           child: Padding(
@@ -131,8 +77,21 @@ class _SongsListViewState extends State<SongsListView> {
             title: Text(title),
             subtitle: Text(artist),
             trailing: IconButton(
-              icon: const Icon(Icons.download),
-              onPressed: () => _downloadSong(song),
+              icon: const Icon(Icons.play_arrow),
+              onPressed: () {
+                final safeTitle = title.replaceAll(RegExp(r'[\\/:*?"<>|\s]+'), '_');
+                final filePath = "/storage/emulated/0/Download/Musix/$safeTitle.mp3";
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => LocalMusicPlayer(
+                      filePath: filePath,
+                      title: title,
+                    ),
+                  ),
+                );
+              },
             ),
           );
         },
@@ -141,7 +100,7 @@ class _SongsListViewState extends State<SongsListView> {
   }
 }
 
-class SongProvider with ChangeNotifier {
+class DownloadedSongProvider with ChangeNotifier {
   List<Map<String, dynamic>> _allSongs = [];
   List<Map<String, dynamic>> _filteredSongs = [];
 

@@ -1,54 +1,72 @@
+import 'dart:convert';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:musix/Auth.dart';
+import 'package:musix/testClient.dart';
 import 'package:musix/views/contactUs_view.dart';
 import 'package:musix/views/payment_view.dart';
 import 'package:musix/views/sign_up_view.dart';
-import '../models/user_model.dart';
+import 'package:provider/provider.dart';
 import 'login_view.dart';
 
 class UserAccount extends StatefulWidget {
-  //UserAccount({Key? test}) : super(key: test);
-  UserModel user;
 
-  UserAccount({Key? test, required this.user}) : super(key: test);
+
+  UserAccount({Key? test}) : super(key: test);
 
   @override
   State<UserAccount> createState() => _UserAccount();
 }
 
 class _UserAccount extends State<UserAccount> {
-  List<String> Tem = ["default", "pink", "orange", "blue"];
-  String currentTenTem = "default";
 
 
-/*
-  Map<String, dynamic> person = {
-    "name": "Sara",
-    "username": "Saytania",
-    "password": "1234",
-    "e-mail": "sara.ata.ana@gmail.com",
-    "credit": "10.0",
-    "isPremium": "normal",
-  };
+  void edit(String field, String edited) async {
+    final client = Provider.of<CommandClient>(context, listen: false);
+    final auth = Provider.of<AuthProvider>(context, listen: false);
 
- */
+    final response = await client.sendCommand(
+      'Update',
+      extraData: {field: edited},
+    );
 
-  void edit(String field, String edited) {
-    if(field == "username") {
-      setState(() {
-        widget.user.setName(edited);
-      });
+    if (response['status-code'] == 200) {
+      auth.updateField(field, edited);
+    } else {
+      print("Update failed: ${response['message']}");
     }
-    if (field == "password") {
-      setState(() {
-        widget.user.setPassword(edited);
-      });
-    }
-    else
-      return;
   }
+
+
+  Uint8List? decodeBase64ImageSafely(String? base64String) {
+    if (base64String == null || base64String.isEmpty) {
+      print("Base64 string is null or empty");
+      return null;
+    }
+
+    try {
+      String normalized = base64.normalize(base64String);
+
+      print("Normalized base64 length: ${normalized.length}");
+
+      Uint8List bytes = base64Decode(normalized);
+
+      print("Decoded bytes length: ${bytes.length}");
+
+      return bytes;
+    } catch (e, stacktrace) {
+      print("Error decoding base64 image: $e");
+      print(stacktrace);
+      return null;
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
+    AuthProvider authProvider = context.watch<AuthProvider>();
+    Uint8List? profileImageBytes = decodeBase64ImageSafely(authProvider.profileCover);
+
     return Scaffold(
       backgroundColor:Theme.of(context).colorScheme.surface,
       appBar: AppBar(
@@ -69,12 +87,14 @@ class _UserAccount extends State<UserAccount> {
             children: [
               CircleAvatar(
                 radius: 100,
-                backgroundImage: AssetImage('assets/images/girl.jpg'),
+                backgroundImage: profileImageBytes != null
+                    ? MemoryImage(profileImageBytes)
+                    : AssetImage('assets/images/girl.jpg') as ImageProvider,
               ),
               SizedBox(height: 10),
 
               Text(
-                widget.user.name,
+                authProvider.username ?? 'User',
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
               SizedBox(height: 30),
@@ -100,7 +120,7 @@ class _UserAccount extends State<UserAccount> {
                         ),
                       ),
                       Text(
-                        "${widget.user.name}",
+                        "${authProvider.username ?? 'User'}",
                         textAlign: TextAlign.center,
                         style: TextStyle(fontSize: 18),
                       ),
@@ -115,7 +135,7 @@ class _UserAccount extends State<UserAccount> {
                         ),
                       ),
                       Text(
-                        widget.user.email,
+                        authProvider.email??"no email found.",
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 18,
@@ -182,7 +202,7 @@ class _UserAccount extends State<UserAccount> {
                         children: [
                           ElevatedButton(
                             onPressed: () {
-                              goToPaymentView(widget.user, 2000);
+                              goToPaymentView(2000);
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Theme.of(context).colorScheme.secondary,
@@ -396,7 +416,7 @@ class _UserAccount extends State<UserAccount> {
               ElevatedButton(
                 onPressed: () {
                   Navigator.pop(context);
-                  goToPaymentView(widget.user,5);
+                  goToPaymentView(5);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Theme.of(context).colorScheme.primary,
@@ -408,7 +428,7 @@ class _UserAccount extends State<UserAccount> {
               ElevatedButton(
                 onPressed: () {
                   Navigator.pop(context);
-                  goToPaymentView(widget.user, 10);
+                  goToPaymentView(10);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -420,7 +440,7 @@ class _UserAccount extends State<UserAccount> {
               ElevatedButton(
                 onPressed: () {
                   Navigator.pop(context);
-                  goToPaymentView(widget.user, 30);
+                  goToPaymentView(30);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Theme.of(context).colorScheme.primary,
@@ -435,12 +455,12 @@ class _UserAccount extends State<UserAccount> {
     );
   }
 
-  void goToPaymentView(UserModel user, int pay) {
+  void goToPaymentView(int pay) {
     Navigator.push(
       context,
       MaterialPageRoute(
         //builder: (context) => PaymentPage(plan: plan),
-        builder: (context) => PaymentView(user: user, pay: pay),
+        builder: (context) => PaymentView(pay: pay),
       ),
     );
   }

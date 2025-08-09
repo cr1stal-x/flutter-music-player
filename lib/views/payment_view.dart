@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:musix/Auth.dart';
 import 'package:musix/views/user_account_view.dart';
 import 'package:provider/provider.dart';
-
-import '../models/user_model.dart';
 import '../view_models/payment_view_model.dart';
+import '../testClient.dart';
 class PaymentView extends StatelessWidget {
-  final UserModel user;
   final int pay;
-  const PaymentView({super.key, required this.user, required this.pay});
+  const PaymentView({super.key, required this.pay});
   @override
   Widget build(BuildContext context) {
-    final PaymentViewModel vm = PaymentViewModel(userPassword: user.password);
-
+    CommandClient client = context.read<CommandClient>();
+    AuthProvider authProvider=context.read<AuthProvider>();
+    final PaymentViewModel vm = PaymentViewModel(userPassword: authProvider.password ?? '123');
     return ChangeNotifierProvider.value(
         value: vm,
         child: Consumer<PaymentViewModel>(
@@ -106,7 +106,7 @@ class PaymentView extends StatelessWidget {
                                         ScaffoldMessenger.of(context).showSnackBar(
                                           SnackBar(content: Center(child: Text('Payment Canceled.'))),
                                         );
-                                        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>UserAccount(user: user)));
+                                        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>UserAccount()));
                                       },
                                       style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
                                       child: Text('Yes'),

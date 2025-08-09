@@ -3,7 +3,7 @@ import java.util.List;
 
 public class user {
     String name;
-    String usaername;
+    String username;
     String password;
     String email;
     String profile;
@@ -21,7 +21,7 @@ public class user {
         this.profile = "default";
         this.isVip = false;
         this.name = name;
-        this.usaername = username;
+        this.username = username;
         this.password = password;
         this.email = email;
     }
@@ -29,7 +29,7 @@ public class user {
         return name;
     }
     public String getUsername() {
-        return usaername;
+        return username;
     }
     public String getPassword() {
         return password;
@@ -47,7 +47,7 @@ public class user {
         this.name = name;
     }
     public void setUsername(String username) {
-        this.usaername = username;
+        this.username = username;
     }
     public void setPassword(String password) {
         this.password = password;
@@ -59,7 +59,7 @@ public class user {
     public String toString() {
         return "user{" +
                 "name='" + name + '\'' +
-                ", username='" + usaername + '\'' +
+                ", username='" + username + '\'' +
                 ", password='" + password + '\'' +
                 ", email='" + email + '\'' +
                 '}';

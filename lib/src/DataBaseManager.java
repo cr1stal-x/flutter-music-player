@@ -3,7 +3,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DataBaseManager {
-    static String filePath = "C:\\Users\\User\\Desktop\\user.txt";
+    static String filePath = "lib/resources/users.txt";
     static int lastId=1 ;
     static {
         try {

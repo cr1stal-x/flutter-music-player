@@ -8,13 +8,13 @@ class PaymentViewModel extends ChangeNotifier {
   String? errorMessage;
   bool isSuccess = false;
 
-  void updateCardNumber(String value) {
-    cardNumber = value;
+  void updateCardNumber(String? value) {
+    cardNumber = value!;
     notifyListeners();
   }
 
-  void updatePassword(String value) {
-    password = value;
+  void updatePassword(String? value) {
+    password = value!;
     notifyListeners();
   }
 

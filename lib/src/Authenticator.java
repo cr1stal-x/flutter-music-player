@@ -1,23 +1,30 @@
+import java.util.HashMap;
 import java.util.Map;
 
-public class Authenticator{
-    public static int authenticate(Map<String,String> command, ClientHandler cl)throws Exception{
-        int id=0;
-        String method=command.get("method");
-        if(method.equals("login")){
-            id=SQLManager.login(command.get("userName"), command.get("password"));
+
+public class Authenticator {
+
+    public static int authenticate(Map<String, String> command, ClientHandler cl) throws Exception {
+        int id = 0;
+        String method = command.get("method");
+
+        if ("login".equals(method)) {
+            id = SQLManager.login(command.get("userName"), command.get("password"));
+        } else if ("signUp".equals(method)) {
+            id = SQLManager.signUp(command.get("userName"), command.get("password"), command.get("email"));
         }
-        else if(method.equals("signUp")){
-            id=SQLManager.signUp(command.get("userName"),command.get("password"));
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("method", method);
+        if (id > 0) {
+            response.put("status-code", 200);
+            response.put("message", "authenticated");
+        } else {
+            response.put("status-code", 401);
+            response.put("message", "not authenticated");
         }
-        if(id!=0){
-            cl.dos.writeBytes("authenticated");
-            cl.dos.flush();
-        }
-        else{
-            cl.dos.writeBytes("not authenticated");
-            cl.dos.flush();
-        }
+
+        cl.sendJson(cl.gson.toJson(response));
         return id;
     }
 }

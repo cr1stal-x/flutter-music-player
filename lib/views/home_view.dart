@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:musix/views/drawer.dart';
 import 'package:musix/views/tracks_view.dart';
 import 'package:provider/provider.dart';
-
 import '../view_models/library_view_model.dart';
 import 'Playlist_add_view.dart';
+import 'downloaded_songs.dart';
 class HomeView extends StatelessWidget {
   const HomeView({super.key});
 
@@ -34,6 +34,7 @@ class HomeView extends StatelessWidget {
             Text('Tracks'), SizedBox(height: 6,)],), ),
 
             FilledButton(onPressed: (){
+              Navigator.push(context,MaterialPageRoute(builder: (_)=>DownloadedSongsView()));
             // Navigator.push(
             //   context,
             //   MaterialPageRoute(
@@ -90,7 +91,7 @@ class HomeView extends StatelessWidget {
 
       ],
     ),],);}),
-      floatingActionButton: FloatingActionButton(onPressed: (){
+      floatingActionButton: FloatingActionButton(onPressed: () {
       },tooltip: 'Create a new playlist', child: Icon(Icons.add),),
     ));
   }
