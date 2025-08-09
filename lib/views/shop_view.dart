@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:musix/views/drawer.dart';
 import 'package:musix/views/server_view.dart';
-import 'package:musix/views/shop2_view.dart';
 
 class ShopPage extends StatelessWidget {
   const ShopPage({super.key});

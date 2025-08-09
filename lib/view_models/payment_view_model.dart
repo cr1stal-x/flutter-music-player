@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'sign_up_view_model.dart';
 class PaymentViewModel extends ChangeNotifier {
   PaymentViewModel({required this.userPassword});
   String userPassword;

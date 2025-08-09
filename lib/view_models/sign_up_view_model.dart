@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:musix/testClient.dart';
-import 'package:musix/views/main_page_view.dart';
-import 'package:musix/views/payment_view.dart';
 import 'package:musix/views/user_account_view.dart';
 import 'package:provider/provider.dart';
 import '../Auth.dart';
-import '../models/user_model.dart';
 
 class SignUpViewModel extends ChangeNotifier {
   final formKey = GlobalKey<FormState>();
