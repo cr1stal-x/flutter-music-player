@@ -2,6 +2,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
+
 import com.google.gson.Gson;
 
 public class CommandManager {
@@ -37,7 +39,14 @@ public class CommandManager {
                 }
             break;
             case "GetServerSongs": getServerSongs(cl); break;
-            case "ChatWithAdmin": chatWithAdmin(cl); break;
+            case "ChatWithAdmin": Object extraData = command.get("extraData");
+                if(extraData instanceof Map){
+                    String message = (String)((Map)extraData).get("message");
+                    chatWithAdmin(cl, message);
+                } else {
+                    sendError(cl, "Invalid chat message");
+                }
+                 break;
             case "ForgetPassword": forgetPassword(cl); break;
             case "NewPlaylist": newPlaylist(cl, command.get("playlistName")); break;
             case "AddSong": addSong(cl, command.get("playlistId"), command.get("songId")); break;
@@ -229,10 +238,15 @@ public class CommandManager {
         cl.sendJson(gson.toJson(result));
     }
 
-    public void chatWithAdmin(ClientHandler cl) throws IOException {
-        SQLManager.sendMessageToAdmin(cl.id, "Hello from user " + cl.id);
+    public void chatWithAdmin(ClientHandler cl, String message) throws IOException {
+        Map<String, Object> msg = new HashMap<>();
+        System.out.println(message);
+        msg.put("method", "ChatWithAdmin");
+        Scanner in=new Scanner(System.in);
+        String response= in.nextLine();
+        msg.put("response", response);
+        cl.sendJson(gson.toJson(msg));
     }
-
     public void forgetPassword(ClientHandler cl) throws IOException {
         boolean success = SQLManager.resetPassword(cl.id);
         Map<String, Object> result = new HashMap<>();

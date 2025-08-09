@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:musix/Auth.dart';
 import 'package:musix/testClient.dart';
+import 'package:musix/views/admin_chat.dart';
 import 'package:musix/views/contactUs_view.dart';
 import 'package:musix/views/payment_view.dart';
 import 'package:musix/views/sign_up_view.dart';
@@ -257,7 +258,7 @@ class _UserAccount extends State<UserAccount> {
                           context,
                           MaterialPageRoute(
                             builder: (context) =>
-                              AboutUs(),
+                              ChatPage(),
                           ),
                         );
                       });
