@@ -364,5 +364,19 @@ public class SQLManager {
                 }
             }
         }
-
+        public static int getAccByUsername(String username){
+            String query = "SELECT id FROM users WHERE username = ?";
+            int id=-1;
+            try (Connection conn = SQLConnection.connect();
+                 PreparedStatement stmt = conn.prepareStatement(query)) {
+                stmt.setString(1, username);
+                ResultSet rs = stmt.executeQuery();
+                if (rs.next()) {
+                    id= rs.getInt("id");
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            return id;
+        }
 }

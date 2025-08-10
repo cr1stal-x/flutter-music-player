@@ -47,6 +47,19 @@ class _LoginState extends State<Login> {
     }
   }
 
+  Future<void> _forgetPassword(String newValue) async {
+    final client = Provider.of<CommandClient>(context, listen: false);
+    final response = await client.sendCommand("ForgetPassword",extraData: {"username":newValue});
+    if(response["status-code"]==200){
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("new password sent to your email.")),
+      );
+    }else{
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("user not found.")),);
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -199,6 +212,61 @@ class _LoginState extends State<Login> {
                     textAlign: TextAlign.center,
                   ),
                 ),
+                onTap: (){
+                  TextEditingController controller = TextEditingController();
+                  showDialog(context: context,
+                      builder: (context){
+                        return AlertDialog(
+                          backgroundColor: Colors.white70,
+                          title: Text("Enter your username"),
+                          content: TextField(
+                            controller: controller,
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(),
+                              labelText:"username",
+                            ),
+                          ),
+                          actions: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.white,
+                                    foregroundColor: Theme.of(context).colorScheme.secondary,
+                                    side: BorderSide(color: Theme.of(context).colorScheme.secondary),
+                                  ),
+                                  child: Text("Cancel"),
+                                ),
+                                SizedBox(width: 20),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    String newValue = controller.text.trim();
+                                    if(newValue.isNotEmpty) {
+                                      _forgetPassword(newValue);
+                                    }
+                                    Navigator.pop(context);
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text("new password sent to your email.")),
+                                    );
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Theme.of(context).colorScheme.secondary,
+                                    foregroundColor: Colors.white,
+                                  ),
+                                  child: Text("ok"),
+                                ),
+                              ],
+                            ),
+                          ],
+                        );
+                      }
+                  );
+
+                },
               ),
             ],
           ),

@@ -1,11 +1,14 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:musix/Auth.dart';
 import 'package:musix/testClient.dart';
 import 'package:musix/views/admin_chat.dart';
 import 'package:musix/views/contactUs_view.dart';
 import 'package:musix/views/payment_view.dart';
+import 'package:musix/views/profile_changer.dart';
 import 'package:musix/views/sign_up_view.dart';
 import 'package:provider/provider.dart';
 import 'login_view.dart';
@@ -20,6 +23,7 @@ class UserAccount extends StatefulWidget {
 }
 
 class _UserAccount extends State<UserAccount> {
+  
 
 
   void edit(String field, String edited) async {
@@ -270,6 +274,7 @@ class _UserAccount extends State<UserAccount> {
                     child: Text("Chat with admin"),
                   ),
                   SizedBox(height: 30),
+
                   InkWell(
                     onTap: () {
                       Navigator.push(
@@ -309,7 +314,8 @@ class _UserAccount extends State<UserAccount> {
             "Which field do you want to edit?",
             textAlign: TextAlign.center,
           ),
-          content: Row(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               ElevatedButton(
@@ -350,12 +356,14 @@ class _UserAccount extends State<UserAccount> {
               const SizedBox(width: 20),
               ElevatedButton(
                 onPressed: () {
-                  Navigator.pop(context);
-                  showEditInputDialog(context, "profileCover");
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => EditProfileCoverPage()));
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.secondary,
-                  foregroundColor: Colors.white,
+                  backgroundColor: Colors.white,
+                  foregroundColor: Theme.of(context).colorScheme.secondary,
+                  side: BorderSide(color: Theme.of(context).colorScheme.secondary),
                 ),
                 child: const Text("Profile Cover"),
               ),

@@ -47,7 +47,13 @@ public class CommandManager {
                     sendError(cl, "Invalid chat message");
                 }
                  break;
-            case "ForgetPassword": forgetPassword(cl); break;
+            case "ForgetPassword": extraData=command.get("extraData");
+                if(extraData instanceof Map){
+                    String username = (String)((Map)extraData).get("username");
+                    forgetPassword(cl, username);
+                } else {
+                    sendError(cl, "Invalid username");
+                } break;
             case "NewPlaylist": newPlaylist(cl, command.get("playlistName")); break;
             case "AddSong": addSong(cl, command.get("playlistId"), command.get("songId")); break;
             case "DeletePlaylist": deletePlaylist(cl, command.get("playlistId")); break;
@@ -247,14 +253,22 @@ public class CommandManager {
         msg.put("response", response);
         cl.sendJson(gson.toJson(msg));
     }
-    public void forgetPassword(ClientHandler cl) throws IOException {
-        String newPassword=PasswordGenerator.generatePassword(8);
-        System.out.println("\uD83D\uDCE4 new password: "+newPassword);
-        boolean success = SQLManager.resetPassword(cl.id, newPassword);
+    public void forgetPassword(ClientHandler cl, String username) throws IOException {
         Map<String, Object> result = new HashMap<>();
-        result.put("status-code", success ? 200 : 500);
-        result.put("method", "ForgetPassword");
-        result.put("message", success ? "Password reset successful" : "Reset failed");
+        int id=SQLManager.getAccByUsername(username);
+        if(id!=-1){
+            String newPassword=PasswordGenerator.generatePassword(8);
+            System.out.println("\uD83D\uDCE4 new password: "+newPassword);
+            boolean success = SQLManager.resetPassword(id, newPassword);
+            result.put("status-code", success ? 200 : 500);
+            result.put("method", "ForgetPassword");
+            result.put("message", success ? "Password reset successful" : "Reset failed");
+    }
+        else{
+            result.put("status-code", 401);
+            result.put("method", "ForgetPassword");
+            result.put("message", "user not found.");
+        }
         cl.sendJson(gson.toJson(result));
     }
 
