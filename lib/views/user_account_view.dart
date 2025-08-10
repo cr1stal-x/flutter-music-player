@@ -336,6 +336,30 @@ class _UserAccount extends State<UserAccount> {
                 ),
                 child: const Text("Password"),
               ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  showEditInputDialog(context, "email");
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.secondary,
+                  foregroundColor: Colors.white,
+                ),
+                child: const Text("e=Email"),
+              ),
+              const SizedBox(width: 20),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  showEditInputDialog(context, "profileCover");
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.secondary,
+                  foregroundColor: Colors.white,
+                ),
+                child: const Text("Profile Cover"),
+              ),
+              const SizedBox(width: 20),
             ],
           ),
         );
@@ -357,7 +381,7 @@ class _UserAccount extends State<UserAccount> {
             obscureText: field == "password",
             decoration: InputDecoration(
               border: OutlineInputBorder(),
-              labelText: field == "password" ? "New Password" : "New Username",
+              labelText:"New",
             ),
           ),
           actions: [

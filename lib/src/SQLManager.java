@@ -292,12 +292,12 @@ public class SQLManager {
         return songs;
     }
 
-    public static boolean resetPassword(int id) {
-
-        String query = "UPDATE users SET password = 'default123' WHERE id = ?";
+    public static boolean resetPassword(int id, String newPassword) {
+        String query = "UPDATE users SET password = ? WHERE id = ?";
         try (Connection conn = SQLConnection.connect();
              PreparedStatement stmt = conn.prepareStatement(query)) {
-            stmt.setInt(1, id);
+            stmt.setString(1,newPassword);
+            stmt.setInt(2, id);
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();

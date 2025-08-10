@@ -248,10 +248,12 @@ public class CommandManager {
         cl.sendJson(gson.toJson(msg));
     }
     public void forgetPassword(ClientHandler cl) throws IOException {
-        boolean success = SQLManager.resetPassword(cl.id);
+        String newPassword=PasswordGenerator.generatePassword(8);
+        System.out.println("\uD83D\uDCE4 new password: "+newPassword);
+        boolean success = SQLManager.resetPassword(cl.id, newPassword);
         Map<String, Object> result = new HashMap<>();
         result.put("status-code", success ? 200 : 500);
-        result.put("method", "forgetPassword");
+        result.put("method", "ForgetPassword");
         result.put("message", success ? "Password reset successful" : "Reset failed");
         cl.sendJson(gson.toJson(result));
     }
