@@ -7,11 +7,13 @@ import '../testClient.dart';
 class PaymentView extends StatelessWidget {
   final int pay;
   const PaymentView({super.key, required this.pay});
+
+
   @override
   Widget build(BuildContext context) {
     CommandClient client = context.read<CommandClient>();
     AuthProvider authProvider=context.read<AuthProvider>();
-    final PaymentViewModel vm = PaymentViewModel(userPassword: authProvider.password ?? '123');
+    final PaymentViewModel vm = PaymentViewModel(userPassword: authProvider.password ?? '1234');
     return ChangeNotifierProvider.value(
         value: vm,
         child: Consumer<PaymentViewModel>(
@@ -23,7 +25,7 @@ class PaymentView extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(height: 200),
+                SizedBox(height: 50),
                 Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                   Text("Price: ",style: TextStyle(fontSize: 24),),
@@ -69,19 +71,32 @@ class PaymentView extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children:[ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
                       vm.processPayment();
                       if (vm.isSuccess) {
+                        final client = Provider.of<CommandClient>(context, listen: false);
+                        final auth = Provider.of<AuthProvider>(context, listen: false);
+                        final newCredit=(auth.credit??0)+pay;
+                        final response = await client.sendCommand(
+                          'Update',
+                          extraData: {"credit": newCredit},
+                        );
+
+                        if (response['status-code'] == 200) {
+                          auth.updateField("credit", newCredit);
+                        } else {
+                          print("Update failed: ${response['message']}");
+                        }
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text('Payment complete!')),
                         );
-                        Navigator.pop(context);
+                        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>UserAccount()));
                       }
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Theme.of(context).colorScheme.secondary,
                       padding: EdgeInsets.symmetric(
-                          horizontal: 50, vertical: 15),
+                          horizontal: 40, vertical: 15),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10)),
                     ),
@@ -130,7 +145,7 @@ class PaymentView extends StatelessWidget {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Theme.of(context).colorScheme.secondary,
                         padding: EdgeInsets.symmetric(
-                            horizontal: 50, vertical: 15),
+                            horizontal: 40, vertical: 15),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10)),
                       ),

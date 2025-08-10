@@ -172,7 +172,7 @@ public class SQLManager {
 
     public static List<Map<String, Object>> getServerSongs() {
         List<Map<String, Object>> songs = new ArrayList<>();
-        String query = "SELECT id, title, artist, price FROM serverSongs";
+        String query = "SELECT id, title, artist, price, cover_base64 FROM serverSongs";
         try (Connection conn = SQLConnection.connect();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
@@ -182,6 +182,7 @@ public class SQLManager {
                 song.put("title", rs.getString("title"));
                 song.put("artist", rs.getString("artist"));
                 song.put("price", rs.getDouble("price"));
+                song.put("cover_base64",rs.getString("cover_base64"));
                 songs.add(song);
             }
         } catch (SQLException e) {
@@ -341,8 +342,7 @@ public class SQLManager {
                             coverBase64 = Uploader.encodeBytesToBase64(imageData);
                         }
                     }
-
-                    double price = Math.max(10, title.length()); // قیمت تستی
+                    double price=title.length()/10.0;
 
                     try (Connection conn = SQLConnection.connect();
                          PreparedStatement stmt = conn.prepareStatement(

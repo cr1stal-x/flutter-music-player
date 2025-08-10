@@ -71,6 +71,7 @@ class _UserAccount extends State<UserAccount> {
   Widget build(BuildContext context) {
     AuthProvider authProvider = context.watch<AuthProvider>();
     Uint8List? profileImageBytes = decodeBase64ImageSafely(authProvider.profileCover);
+    TextEditingController controller = TextEditingController();
 
     return Scaffold(
       backgroundColor:Theme.of(context).colorScheme.surface,
@@ -146,6 +147,36 @@ class _UserAccount extends State<UserAccount> {
                           fontSize: 18,
                         ),
                       ),
+                      SizedBox(height: 8,),
+                      Text(
+                        "Credit",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.secondary,
+                        ),
+                      ),
+                      Text(
+                        "${authProvider.credit ?? '0.0'}",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 18),
+                      ),
+                      SizedBox(height: 8,),
+                      Text(
+                        "VIP",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.secondary,
+                        ),
+                      ),
+                      Text(
+                        (authProvider.isVip??false?"Active":"Diactive"),
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 18),
+                      ),
                       SizedBox(height: 12),
                       ElevatedButton(
                         onPressed: () {
@@ -207,7 +238,57 @@ class _UserAccount extends State<UserAccount> {
                         children: [
                           ElevatedButton(
                             onPressed: () {
-                              goToPaymentView(2000);
+                              showDialog(context: context, builder: (context){
+                                return AlertDialog(
+                                  backgroundColor: Colors.white70,
+                                  title: Text("Enter amount of increasing",textAlign: TextAlign.center,),
+                                  content: TextField(
+                                    controller: controller,
+                                    decoration: InputDecoration(
+                                      border: OutlineInputBorder(),
+                                      labelText:"amount",
+                                    ),
+                                  ),
+                                  actions: [
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        ElevatedButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Colors.white,
+                                            foregroundColor: Theme.of(context).colorScheme.secondary,
+                                            side: BorderSide(color: Theme.of(context).colorScheme.secondary),
+                                          ),
+                                          child: Text("Cancel"),
+                                        ),
+                                        SizedBox(width: 20),
+                                        ElevatedButton(
+                                          onPressed: () {
+                                            String newValue = controller.text.trim();
+                                            if(newValue.isNotEmpty) {
+                                              try {
+                                                int parsedInt = int.parse(newValue);
+                                                Navigator.pop(context);
+                                                goToPaymentView(parsedInt);
+                                              } on FormatException catch (e) {
+                                                print("Error parsing string: $e");
+                                              }
+                                            }
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Theme.of(context).colorScheme.secondary,
+                                            foregroundColor: Colors.white,
+                                          ),
+                                          child: Text("ok"),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                );
+                              });
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Theme.of(context).colorScheme.secondary,
@@ -449,7 +530,7 @@ class _UserAccount extends State<UserAccount> {
               ElevatedButton(
                 onPressed: () {
                   Navigator.pop(context);
-                  goToPaymentView(5);
+                  activateVip(true,5);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Theme.of(context).colorScheme.primary,
@@ -461,7 +542,7 @@ class _UserAccount extends State<UserAccount> {
               ElevatedButton(
                 onPressed: () {
                   Navigator.pop(context);
-                  goToPaymentView(10);
+                  activateVip(true,10);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -473,7 +554,7 @@ class _UserAccount extends State<UserAccount> {
               ElevatedButton(
                 onPressed: () {
                   Navigator.pop(context);
-                  goToPaymentView(30);
+                  activateVip(true,30);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Theme.of(context).colorScheme.primary,
@@ -497,4 +578,31 @@ class _UserAccount extends State<UserAccount> {
       ),
     );
   }
+  Future<void> activateVip(bool value, int amount) async {
+    final client = Provider.of<CommandClient>(context, listen: false);
+    final auth = Provider.of<AuthProvider>(context, listen: false);
+    if((auth.credit??0)<amount){
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('credit is not enough.')),
+      );
+    }else{
+      double newCredit=(auth.credit??0)-amount;
+      final response = await client.sendCommand(
+        'Update',
+        extraData: {"isVip": value, "credit":newCredit},
+      );
+
+      if (response['status-code'] == 200) {
+        auth.updateField("isVip", value);
+        auth.updateField("credit", newCredit);
+      } else {
+        print("Update failed: ${response['message']}");
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('vip activated.')),
+      );
+    }
+
+  }
+
 }

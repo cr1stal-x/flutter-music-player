@@ -12,7 +12,7 @@ public class Server {
             try (Connection conn = SQLConnection.connect()) {
                 ScriptRunner.runScript(conn, "C:\\Users\\user\\musix\\lib\\resources\\init.sql");
                 System.out.println("Database and table initialized.");
-//                SQLManager.loadSongs("E:\\ServerSongs\\");
+                SQLManager.loadSongs("E:\\ServerSongs\\");
             } catch (Exception e) {
                 e.printStackTrace();
             }

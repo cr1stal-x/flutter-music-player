@@ -22,10 +22,13 @@ class PaymentViewModel extends ChangeNotifier {
     if (password == expectedPassword) {
       isSuccess = true;
       errorMessage = null;
+
+
     } else {
       isSuccess = false;
       errorMessage = 'Wrong password!';
     }
     notifyListeners();
   }
+
 }

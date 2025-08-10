@@ -1,10 +1,6 @@
-import 'dart:convert';
-import 'dart:io';
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:musix/views/server_song_view.dart';
 import 'package:provider/provider.dart';
-import 'package:path_provider/path_provider.dart';
 import '../testClient.dart';
 
 class SongsListView extends StatefulWidget {
@@ -43,61 +39,9 @@ class _SongsListViewState extends State<SongsListView> {
     }
   }
 
-  Future<void> _downloadSong(Map<String, dynamic> song) async {
-    final songId = song['id'];
-    final songTitle = (song['title'] ?? 'Unknown').toString().replaceAll(' ', '_');
-
-    final client = Provider.of<CommandClient>(context, listen: false);
-    final response = await client.sendCommand(
-      'DownloadSong',
-      extraData: {'songId': songId},
-    );
-
-    if (response['status-code'] == 200) {
-      final String? base64Data = response['song_base64'];
-
-      if (base64Data != null) {
-        Uint8List bytes = base64Decode(base64Data);
-
-        var status = await Permission.storage.request();
-        if (!status.isGranted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("❌ Storage permission denied")),
-          );
-          return;
-        }
-
-        Directory? downloadsDir = Directory('/storage/emulated/0/Download');
-        if (!await downloadsDir.exists()) {
-          downloadsDir = await getExternalStorageDirectory();
-        }
-        final musixDir = Directory("${downloadsDir!.path}/Musix");
-        if (!await musixDir.exists()) {
-          await musixDir.create(recursive: true);
-        }
-
-        final filePath = "${musixDir.path}/$songTitle.mp3";
-        final file = File(filePath);
-        await file.writeAsBytes(bytes);
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("✅ $songTitle saved at $filePath")),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('❌ No song data in response')),
-        );
-      }
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(response['message'] ?? 'Failed to download song')),
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    if (isLoading) return const Center(child: CircularProgressIndicator());
+    // if (isLoading) return const Center(child: CircularProgressIndicator());
     if (error != null) return Center(child: Text("Error: $error"));
     final provider = Provider.of<SongProvider>(context);
     final songs = provider.filteredSongs;
@@ -127,13 +71,14 @@ class _SongsListViewState extends State<SongsListView> {
           final title = song["title"]?.toString() ?? "Unknown Title";
           final artist = song["artist"]?.toString() ?? "Unknown Artist";
 
-          return ListTile(
-            title: Text(title),
-            subtitle: Text(artist),
-            trailing: IconButton(
-              icon: const Icon(Icons.download),
-              onPressed: () => _downloadSong(song),
+          return GestureDetector(
+            child: ListTile(
+              title: Text(title),
+              subtitle: Text(artist),
             ),
+            onDoubleTap: (){
+              Navigator.push(context, MaterialPageRoute(builder: (context)=>ServerSongView(song: song)));
+            },
           );
         },
       ),
