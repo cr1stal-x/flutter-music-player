@@ -21,10 +21,6 @@ CREATE TABLE IF NOT EXISTS serverSongs (
   cover_base64 LONGTEXT
 );
 
-CREATE TABLE IF NOT EXISTS localSongs (
-  id INTEGER PRIMARY KEY
-  );
-
 CREATE TABLE IF NOT EXISTS playlists (
   id INTEGER PRIMARY KEY auto_increment,
   title TEXT NOT NULL,
@@ -35,8 +31,7 @@ CREATE TABLE IF NOT EXISTS playlist_localSongs (
   playlist_id INTEGER,
   song_id INTEGER,
   PRIMARY KEY (playlist_id, song_id),
-  FOREIGN KEY (playlist_id) REFERENCES playlists(id) ON DELETE CASCADE,
-  FOREIGN KEY (song_id) REFERENCES localSongs(id) ON DELETE CASCADE
+  FOREIGN KEY (playlist_id) REFERENCES playlists(id) ON DELETE CASCADE
 );
 CREATE TABLE IF NOT EXISTS comments (
   id INTEGER PRIMARY KEY auto_increment,

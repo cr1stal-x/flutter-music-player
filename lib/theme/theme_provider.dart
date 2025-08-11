@@ -4,7 +4,7 @@ import 'package:musix/theme/green_theme.dart';
 import 'package:musix/theme/purple_theme.dart';
 
 class ThemeProvider extends ChangeNotifier{
-  ThemeData _themeData=blueTheme;
+  ThemeData _themeData=greenTheme;
 
   ThemeData get themeData=> _themeData;
 

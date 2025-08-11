@@ -54,17 +54,67 @@ public class CommandManager {
                 } else {
                     sendError(cl, "Invalid username");
                 } break;
-            case "NewPlaylist": newPlaylist(cl, command.get("playlistName")); break;
-            case "AddSong": addSong(cl, command.get("playlistId"), command.get("songId")); break;
-            case "DeletePlaylist": deletePlaylist(cl, command.get("playlistId")); break;
-            case "GetDownloadedSongs": getDownloadSongs(cl); break;
 
+            case "NewPlaylist":extraData=command.get("extraData");
+                if(extraData instanceof Map){
+                    String playlistName = (String)((Map)extraData).get("playlistName");
+                    newPlaylist(cl,playlistName);
+                } else {
+                    sendError(cl, "Invalid username");
+                } break;
+            case "AddSong":
+                extraData=command.get("extraData");
+                if(extraData instanceof Map){
+                    String username=command.get("username");
+                    int userId=SQLManager.getAccByUsername(username);
+                    String playlistName = (String)((Map)extraData).get("playlistName");
+                    double songId=(double)((Map)extraData).get("songId");
+                    int playlistId=SQLManager.getPlaylistId(userId,playlistName);
+                    addSong(cl,playlistId,songId);
+                } else {
+                    sendError(cl, "Invalid username");
+                }
+                break;
+            case "DeletePlaylist": deletePlaylist(cl, command.get("playlistName")); break;
+            case "GetPlaylists":getPlaylists(cl);break;
+            case "GetPlaylistSongs":
+                extraData=command.get("extraData");
+                if(extraData instanceof Map){
+                    String username=command.get("username");
+                    int userId=SQLManager.getAccByUsername(username);
+                    String playlistName = (String)((Map)extraData).get("playlistName");
+                    getPlaylistSongs(cl, playlistName,userId);
+                } else {
+                    sendError(cl, "Invalid username");
+                }
+                break;
+
+            case "GetDownloadedSongs": getDownloadSongs(cl); break;
             case "GetAccountInfo": getAccountInfo(cl); break;
             default: sendError(cl, "Unknown method: " + method); break;
         }
     }
 
-    private void sendError(ClientHandler cl, String message) throws IOException {
+    private void getPlaylistSongs(ClientHandler cl,String playlistName, int userId) {
+        List<Integer> songs = SQLManager.getPlaylistSongs(userId,playlistName);
+        Map<String, Object> result = new HashMap<>();
+        result.put("status-code", 200);
+        result.put("method", "getPlaylistSongs");
+        result.put("songs", songs);
+        cl.sendJson(gson.toJson(result));
+    }
+
+    private void getPlaylists(ClientHandler cl) {
+        List<Map<String, Object>> playlists = SQLManager.getPlaylists(cl.id);
+        Map<String, Object> result = new HashMap<>();
+        result.put("status-code", 200);
+        result.put("method", "getPlaylists");
+        result.put("playlists", playlists);
+        cl.sendJson(gson.toJson(result));
+    }
+
+
+    private void sendError(ClientHandler cl, String message)  {
         Map<String, Object> result = new HashMap<>();
         result.put("status-code", 400);
         result.put("method", "error");
@@ -72,7 +122,7 @@ public class CommandManager {
         cl.sendJson(gson.toJson(result));
     }
 
-    public void logOut(ClientHandler cl) throws IOException {
+    public void logOut(ClientHandler cl)  {
         cl.id = 0;
         Map<String, Object> result = new HashMap<>();
         result.put("status-code", 200);
@@ -80,7 +130,7 @@ public class CommandManager {
         cl.sendJson(gson.toJson(result));
     }
 
-    public void signUp(String userName, String password, String email, ClientHandler cl) throws IOException {
+    public void signUp(String userName, String password, String email, ClientHandler cl)  {
         int status = SQLManager.signUp(userName, password, email);
         Map<String, Object> result = new HashMap<>();
         if (status > 0) {
@@ -100,7 +150,7 @@ public class CommandManager {
         cl.sendJson(gson.toJson(result));
     }
 
-    public void login(String userInput, String password, ClientHandler cl) throws IOException {
+    public void login(String userInput, String password, ClientHandler cl){
         int userId = SQLManager.login(userInput, password);
 
         Map<String, Object> result = new HashMap<>();
@@ -130,7 +180,7 @@ public class CommandManager {
         cl.sendJson(gson.toJson(result));
     }
 
-    public void update(ClientHandler cl, Object extraData) throws IOException {
+    public void update(ClientHandler cl, Object extraData)  {
         Map<String, Object> result = new HashMap<>();
         result.put("method", "update");
 
@@ -159,7 +209,7 @@ public class CommandManager {
         cl.sendJson(gson.toJson(result));
     }
 
-    public void get(ClientHandler cl) throws IOException {
+    public void get(ClientHandler cl)  {
         Map<String, Object> result = new HashMap<>();
         if (cl.id <= 0) {
             result.put("status-code", 401);
@@ -179,7 +229,7 @@ public class CommandManager {
         cl.sendJson(gson.toJson(result));
     }
 
-    public void delete(ClientHandler cl) throws IOException {
+    public void delete(ClientHandler cl)  {
         Map<String, Object> result = new HashMap<>();
         if (cl.id <= 0) {
             result.put("status-code", 401);
@@ -198,7 +248,7 @@ public class CommandManager {
         cl.sendJson(gson.toJson(result));
     }
 
-    public void getAccountInfo(ClientHandler cl) throws IOException {
+    public void getAccountInfo(ClientHandler cl) {
         if (cl.id <= 0) {
             sendError(cl, "not authenticated");
             return;
@@ -215,7 +265,7 @@ public class CommandManager {
         cl.sendJson(gson.toJson(result));
     }
 
-    public void getServerSongs(ClientHandler cl) throws IOException {
+    public void getServerSongs(ClientHandler cl)  {
         List<Map<String, Object>> songs = SQLManager.getServerSongs();
         Map<String, Object> result = new HashMap<>();
         result.put("status-code", 200);
@@ -224,7 +274,7 @@ public class CommandManager {
         cl.sendJson(gson.toJson(result));
     }
 
-    public void downloadSong(ClientHandler cl, int songId) throws IOException {
+    public void downloadSong(ClientHandler cl, int songId){
         if (cl.id <= 0) {
             sendError(cl, "not authenticated");
             return;
@@ -244,7 +294,7 @@ public class CommandManager {
         cl.sendJson(gson.toJson(result));
     }
 
-    public void chatWithAdmin(ClientHandler cl, String message) throws IOException {
+    public void chatWithAdmin(ClientHandler cl, String message)  {
         Map<String, Object> msg = new HashMap<>();
         System.out.println(message);
         msg.put("method", "ChatWithAdmin");
@@ -253,7 +303,8 @@ public class CommandManager {
         msg.put("response", response);
         cl.sendJson(gson.toJson(msg));
     }
-    public void forgetPassword(ClientHandler cl, String username) throws IOException {
+
+    public void forgetPassword(ClientHandler cl, String username) {
         Map<String, Object> result = new HashMap<>();
         int id=SQLManager.getAccByUsername(username);
         if(id!=-1){
@@ -272,7 +323,7 @@ public class CommandManager {
         cl.sendJson(gson.toJson(result));
     }
 
-    public void getDownloadSongs(ClientHandler cl) throws IOException {
+    public void getDownloadSongs(ClientHandler cl)  {
         List<Map<String, Object>> songs = SQLManager.getDownloadedSongs(cl.id);
         Map<String, Object> result = new HashMap<>();
         result.put("status-code", 200);
@@ -281,7 +332,7 @@ public class CommandManager {
         cl.sendJson(gson.toJson(result));
     }
 
-    public void newPlaylist(ClientHandler cl, String playlistName) throws IOException {
+    public void newPlaylist(ClientHandler cl, String playlistName)  {
         boolean created = SQLManager.createPlaylist(cl.id, playlistName);
         Map<String, Object> result = new HashMap<>();
         result.put("status-code", created ? 200 : 500);
@@ -290,8 +341,8 @@ public class CommandManager {
         cl.sendJson(gson.toJson(result));
     }
 
-    public void addSong(ClientHandler cl, String playlistId, String songId) throws IOException {
-        boolean added = SQLManager.addSongToPlaylist(Integer.parseInt(playlistId), Integer.parseInt(songId));
+    public void addSong(ClientHandler cl, int playlistId, double songId)  {
+        boolean added = SQLManager.addSongToPlaylist(playlistId, songId);
         Map<String, Object> result = new HashMap<>();
         result.put("status-code", added ? 200 : 500);
         result.put("method", "addSong");
@@ -299,7 +350,7 @@ public class CommandManager {
         cl.sendJson(gson.toJson(result));
     }
 
-    public void deletePlaylist(ClientHandler cl, String playlistId) throws IOException {
+    public void deletePlaylist(ClientHandler cl, String playlistId)  {
         boolean deleted = SQLManager.deletePlaylist(cl.id, Integer.parseInt(playlistId));
         Map<String, Object> result = new HashMap<>();
         result.put("status-code", deleted ? 200 : 500);

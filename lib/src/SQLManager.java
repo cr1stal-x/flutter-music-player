@@ -7,6 +7,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 
 public class SQLManager {
+
+
     public static int login(String userInput, String password) {
         // userInput can be either username or email
         String query = "SELECT id FROM users WHERE (username = ? OR email = ?) AND password = ?";
@@ -25,7 +27,6 @@ public class SQLManager {
         }
         return 0;
     }
-
 
     public static int signUp(String username, String password, String email) {
         String checkQuery = "SELECT id FROM users WHERE username = ?";
@@ -55,8 +56,6 @@ public class SQLManager {
 
         return 0; // Other error
     }
-
-
 
     public static double getCredit(int id) {
         String query = "SELECT credit FROM users WHERE id = ?";
@@ -118,7 +117,6 @@ public class SQLManager {
             return 500;
         }
     }
-
 
     public static String get(int id) {
         String query = "SELECT * FROM users WHERE id = ?";
@@ -233,7 +231,6 @@ public class SQLManager {
         return songData;
     }
 
-
     public static boolean createPlaylist(int userId, String title) {
         String query = "INSERT INTO playlists (title, user_id) VALUES (?, ?)";
         try (Connection conn = SQLConnection.connect();
@@ -247,12 +244,12 @@ public class SQLManager {
         return false;
     }
 
-    public static boolean addSongToPlaylist(int playlistId, int songId) {
+    public static boolean addSongToPlaylist(int playlistId, double songId) {
         String query = "INSERT INTO playlist_localSongs (playlist_id, song_id) VALUES (?, ?)";
         try (Connection conn = SQLConnection.connect();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setInt(1, playlistId);
-            stmt.setInt(2, songId);
+            stmt.setDouble(2, songId);
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -310,8 +307,7 @@ public class SQLManager {
         System.out.println("Message from user " + id + ": " + message);
     }
 
-
-        public static void loadSongs(String directoryPath) {
+    public static void loadSongs(String directoryPath) {
             File dir = new File(directoryPath);
             if (!dir.exists() || !dir.isDirectory()) {
                 System.out.println("❌ Invalid song directory.");
@@ -364,7 +360,8 @@ public class SQLManager {
                 }
             }
         }
-        public static int getAccByUsername(String username){
+
+    public static int getAccByUsername(String username){
             String query = "SELECT id FROM users WHERE username = ?";
             int id=-1;
             try (Connection conn = SQLConnection.connect();
@@ -379,4 +376,67 @@ public class SQLManager {
             }
             return id;
         }
+
+    public static List<Integer> getPlaylistSongs(int userId, String title) {
+        List<Integer> songs = new ArrayList<>();
+        int playlistId = getPlaylistId(userId, title);
+        if (playlistId == -1) {
+            System.out.println("Playlist not found for user " + userId);
+            return null;
+        }
+
+        String query = "SELECT song_id FROM playlist_localsongs WHERE playlist_id = ? ";
+
+
+        try (Connection conn = SQLConnection.connect();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, playlistId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    songs.add(rs.getInt("song_id"));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return songs;
+    }
+
+    public static int getPlaylistId(int userId, String title) {
+        String query = "SELECT id FROM playlists WHERE user_id = ? AND title = ?";
+        try (Connection conn = SQLConnection.connect();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, userId);
+            stmt.setString(2, title);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("id");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1; // not found
+    }
+
+    public static List<Map<String, Object>> getPlaylists(int userId) {
+        List<Map<String, Object>> playlists = new ArrayList<>();
+        String query = "SELECT id, title FROM playlists WHERE user_id = ?";
+        try (Connection conn = SQLConnection.connect();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, userId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Map<String, Object> playlist = new HashMap<>();
+                    playlist.put("id", rs.getInt("id"));
+                    playlist.put("title", rs.getString("title"));
+                    playlists.add(playlist);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return playlists;
+    }
+
 }

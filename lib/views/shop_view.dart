@@ -14,13 +14,10 @@ class ShopPage extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
-        title: const Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text('Shop', style: TextStyle(color: Colors.black)),
-            Icon(Icons.settings, color: Colors.black),
-          ],
-        ),
+        title: Text('S h o p', style: TextStyle(fontSize: 28,
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.secondary)),
+        centerTitle: true,
       ),
       drawer: MyDrawer(),
       body: Padding(

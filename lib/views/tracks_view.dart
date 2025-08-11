@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:musix/views/song_view.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 import 'package:provider/provider.dart';
+import '../Auth.dart';
+import '../testClient.dart';
 import '../view_models/library_view_model.dart';
 import '../view_models/song_view_model.dart';
 
@@ -25,6 +27,57 @@ class TracksView extends StatelessWidget {
 
 class TracksScreen extends StatelessWidget {
   const TracksScreen({super.key});
+
+
+  void _showAddToPlaylistDialog(BuildContext context, SongModel song) {
+    final TextEditingController controller = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Enter Playlist Name'),
+          content: TextField(
+            controller: controller,
+            decoration: const InputDecoration(
+              hintText: 'Playlist name',
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                String playlistName = controller.text.trim();
+                if (playlistName.isNotEmpty) {
+                  final client = Provider.of<CommandClient>(context, listen: false);
+                  final auth = Provider.of<AuthProvider>(context, listen: false);
+                  final response=await client.sendCommand("AddSong",username:auth.username??"NO" , extraData: {"playlistName":playlistName, "songId":song.id});
+                  if(response["status-code"]==200){
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("Added ${song.title} to playlist $playlistName")),
+                    );
+                  }else if(response["status-code"]==404){
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("Playlist doesn't exists.")),
+                    );
+                  }else{
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("error ${response["message"]}")),
+                    );
+                  }
+
+                }
+                Navigator.pop(context);
+              },
+              child: const Text('Add'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -91,13 +144,30 @@ class TracksScreen extends StatelessWidget {
                 type: ArtworkType.AUDIO,
                 nullArtworkWidget: Image.asset('assets/images/songs.png'),
               ),
+              trailing: PopupMenuButton<String>(
+                onSelected: (value) {
+                  if (value == 'add_to_playlist') {
+                    _showAddToPlaylistDialog(context, song);
+                  }
+                },
+                itemBuilder: (context) => [
+                  const PopupMenuItem(
+                    value: 'add_to_playlist',
+                    child: Text('Add to Playlist'),
+                  ),
+                ],
+              ),
               onTap: () async {
                 playlistProvider.setSongs(libraryVM.allSongs.map((s) => s.song).toList());
                 await playlistProvider.setSong(index);
                 await playlistProvider.play();
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const MusicPlayerScreen()));
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const MusicPlayerScreen()),
+                );
               },
             );
+
           },
         );
       },
