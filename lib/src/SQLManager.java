@@ -302,10 +302,6 @@ public class SQLManager {
         return false;
     }
 
-    public static void sendMessageToAdmin(int id, String message) {
-        System.out.println("Message from user " + id + ": " + message);
-    }
-
     public static void loadSongs(String directoryPath) {
             File dir = new File(directoryPath);
             if (!dir.exists() || !dir.isDirectory()) {
