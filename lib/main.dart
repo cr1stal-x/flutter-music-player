@@ -15,7 +15,7 @@ void main() {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
-        Provider<CommandClient>(create: (_) => CommandClient()..connect()),
+         Provider<CommandClient>(create: (_) => CommandClient()..connect()),
         ChangeNotifierProvider(create: (_) => SongViewModel()..init()),
         ChangeNotifierProvider(create: (_)=>ThemeProvider()),
         ChangeNotifierProvider(create: (_) => LibraryViewModel()),

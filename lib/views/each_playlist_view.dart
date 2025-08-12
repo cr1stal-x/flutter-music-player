@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:musix/views/song_view.dart';
 import 'package:on_audio_query/on_audio_query.dart';
+import 'package:provider/provider.dart';
+
+import '../view_models/song_view_model.dart';
 
 class SongsByIdsView extends StatefulWidget {
   final List<int> songIds;
@@ -40,6 +43,7 @@ class _SongsByIdsViewState extends State<SongsByIdsView> {
 
   @override
   Widget build(BuildContext context) {
+    final viewModel = Provider.of<SongViewModel>(context);
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -54,7 +58,17 @@ class _SongsByIdsViewState extends State<SongsByIdsView> {
         itemBuilder: (context, index)  {
           final song = filteredSongs[index];
           return ListTile(
-            onTap: (){ Navigator.push(context, MaterialPageRoute(builder: (context)=>MusicPlayerScreen()));},
+            onTap: ()async {
+              viewModel.setSongs(filteredSongs);
+              await viewModel.setSong(index);
+              await viewModel.play();
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const MusicPlayerScreen(),
+                ),
+              );
+            },
             leading: QueryArtworkWidget(
               id: song.id,
               type: ArtworkType.AUDIO,

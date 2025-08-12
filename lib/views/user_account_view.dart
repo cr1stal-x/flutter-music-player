@@ -92,7 +92,7 @@ class _UserAccount extends State<UserAccount> {
                 radius: 120,
                 backgroundImage: profileImageBytes != null
                     ? MemoryImage(profileImageBytes)
-                    : AssetImage('assets/images/girl.jpg') as ImageProvider,
+                    : AssetImage('assets/images/default.png') as ImageProvider,
               ),
               SizedBox(height: 10),
 
@@ -313,18 +313,28 @@ class _UserAccount extends State<UserAccount> {
               Column(
                 children: [
                   ElevatedButton(
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("Account deleted successfully")),
-                      );
-                      Future.delayed(Duration(seconds: 1), () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => SignUpView(),
-                          ),
+                    onPressed: () async {
+                      final client = Provider.of<CommandClient>(context, listen: false);
+                      final auth = Provider.of<AuthProvider>(context, listen: false);
+                      final response=await client.sendCommand("Delete");
+                      if(response["status-code"]==200){
+                        auth.logout();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text("Account deleted successfully")),
                         );
-                      });
+                        Future.delayed(Duration(seconds: 1), () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => SignUpView(),
+                            ),
+                          );
+                        });
+                      }else{
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text("Account deleting failed.")),
+                        );
+                      }
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Theme.of(context).colorScheme.primary,
@@ -354,13 +364,28 @@ class _UserAccount extends State<UserAccount> {
                   SizedBox(height: 30),
 
                   InkWell(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => Login(),
-                        ),
-                      );
+                    onTap: () async {
+                      final client = Provider.of<CommandClient>(context, listen: false);
+                      final auth = Provider.of<AuthProvider>(context, listen: false);
+                      final response=await client.sendCommand("LogOut");
+                      if(response["status-code"]==200){
+                        auth.logout();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text("Logged out.")),
+                        );
+                        Future.delayed(Duration(seconds: 1), () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => Login(),
+                            ),
+                          );
+                        });
+                      }else{
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text("Logging out failed.")),
+                        );
+                      }
                     },
                     child: Text(
                       "Sign Out",

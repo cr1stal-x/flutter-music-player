@@ -3,6 +3,7 @@ import 'package:musix/views/drawer.dart';
 import 'package:musix/views/user_account_view.dart';
 import 'package:provider/provider.dart';
 import '../Auth.dart';
+import '../testClient.dart';
 import '../views/sign_up_view.dart';
 import '../views/home_view.dart';
 import '../views/shop_view.dart';
@@ -24,6 +25,8 @@ class _MainPageState extends State<MainPage> {
   @override
   void initState() {
     super.initState();
+    final client = Provider.of<CommandClient>(context, listen: false);
+    client.connect();
     _currentIndex = widget.tabIndex;
   }
 

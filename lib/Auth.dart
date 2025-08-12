@@ -43,7 +43,7 @@ class AuthProvider with ChangeNotifier {
       this.username = username;
       this.email = email;
       this.password = password;
-      credit=200;
+      credit=5;
       isVip=false;
 
       notifyListeners();

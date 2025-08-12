@@ -38,24 +38,7 @@ class SignUpViewModel extends ChangeNotifier {
   }
 
   String? validatePassword(String? value) {
-    // final veryStrongRegex = RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()]).{12,}$');
-    // final strongRegex = RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$');
-    // final mediumRegex = RegExp(r'^(?=.*[a-zA-Z])(?=.*\d).{6,}$');
-    // final weakRegex = RegExp(r'^[a-zA-Z]{4,}$');
-    // final veryWeakRegex = RegExp(r'^([a-zA-Z]{1,3}|[0-9]{1,3})$');
-    // if (value != null && value.isNotEmpty) {
-    //   if (veryStrongRegex.hasMatch(value)) {
-    //     return 'Very Strong';
-    //   } else if (strongRegex.hasMatch(value)) {
-    //     return 'Strong';
-    //   } else if (mediumRegex.hasMatch(value)) {
-    //     return 'Medium';
-    //   } else if (weakRegex.hasMatch(value)) {
-    //     return 'Weak';
-    //   } else if (veryWeakRegex.hasMatch(value)) {
-    //     return 'Very Weak';
-    //   }
-    // }
+
     final regex = RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$');
     if(value !=null && value.isNotEmpty){
       if(!regex.hasMatch(value) || value.toLowerCase().contains(userNameController.text.toLowerCase())){
@@ -114,7 +97,7 @@ class SignUpViewModel extends ChangeNotifier {
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('SignUp failed!')),
+        const SnackBar(content: Text('Username exists.')),
       );
     }
   }

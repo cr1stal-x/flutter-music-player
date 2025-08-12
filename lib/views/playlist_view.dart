@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:musix/views/each_playlist_view.dart';
+import 'package:musix/views/favorites_view.dart';
 import 'package:provider/provider.dart';
 import '../Auth.dart';
 import '../testClient.dart';
@@ -138,7 +139,10 @@ class _ALLPlaylistViewState extends State<ALLPlaylistView> {
                     color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
                   ),
                   onTap: () async {
-                    final client = Provider.of<CommandClient>(context, listen: false);
+                    if(playlist['title']=="favorites"){
+                      Navigator.push(context, MaterialPageRoute(builder: (context)=>FavoritesView()));
+                    }
+                    else{final client = Provider.of<CommandClient>(context, listen: false);
                     final auth = Provider.of<AuthProvider>(context, listen: false);
                     final response=await client.sendCommand("GetPlaylistSongs",username: auth.username??"NO", extraData: {"playlistName": playlist['title']});
                     List<dynamic> songIdsDynamic = [];
@@ -146,13 +150,14 @@ class _ALLPlaylistViewState extends State<ALLPlaylistView> {
                     if (response["status-code"] == 200) {
                       songIdsDynamic = response["songs"];
                       songIds = songIdsDynamic.whereType<int>().toList();
-                    }
-                    Navigator.push(context, MaterialPageRoute(builder: (context)=>SongsByIdsView(songIds: songIds)));
+                      Navigator.push(context, MaterialPageRoute(builder: (context)=>SongsByIdsView(songIds: songIds)));}}
+
                   },
                 ),
               );
             },
           ),
+
 
         floatingActionButton: FloatingActionButton(onPressed: () {
         final auth = Provider.of<AuthProvider>(context, listen: false);

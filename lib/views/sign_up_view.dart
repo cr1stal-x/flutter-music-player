@@ -117,7 +117,8 @@ class SignUpView extends StatelessWidget {
                           ElevatedButton(
                             onPressed: () {
                               vm.signUp(context);
-                              },
+
+                            },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Theme.of(context).colorScheme.secondary,
                               padding: EdgeInsets.symmetric(

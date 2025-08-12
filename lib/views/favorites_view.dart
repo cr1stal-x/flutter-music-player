@@ -14,7 +14,10 @@ class FavoritesView extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Favorite Songs'),
+        centerTitle: true,
+        title: Text('Favorite Songs', style: TextStyle(fontSize: 28,
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.secondary )),
       ),
       body: favoriteSongs.isEmpty
           ? const Center(child: Text("No favorite songs yet."))

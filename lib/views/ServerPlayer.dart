@@ -65,6 +65,7 @@ class _LocalMusicPlayerState extends State<LocalMusicPlayer> {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+
           Text(widget.title, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
           const SizedBox(height: 20),
           Slider(

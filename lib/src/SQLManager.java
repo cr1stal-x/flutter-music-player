@@ -252,9 +252,8 @@ public class SQLManager {
             stmt.setDouble(2, songId);
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            e.printStackTrace();
+            return false;
         }
-        return false;
     }
 
     public static boolean deletePlaylist(int userId, int playlistId) {
