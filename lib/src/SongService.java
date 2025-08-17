@@ -2,18 +2,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SongService {
-    private List<song> songs;
+    private List<Song> songs;
 
     public SongService() {
         this.songs = new ArrayList<>();
     }
 
-    public void addSong(song newSong) {
+    public void addSong(Song newSong) {
         songs.add(newSong);
     }
 
-    public song getSongByTitle(String title) {
-        for (song s : songs) {
+    public Song getSongByTitle(String title) {
+        for (Song s : songs) {
             if (s.getTitle().equals(title)) {
                 return s;
             }
@@ -21,36 +21,50 @@ public class SongService {
         return null;
     }
 
-    public List<song> getAllSongs() {
+    public List<Song> getAllSongs() {
         return new ArrayList<>(songs);
     }
 
     public void removeSong(String title) {
         songs.removeIf(s -> s.getTitle().equals(title));
     }
-    public void editSongTitle(song s, String title){
-        s.setTitle(title);
-    }
-    public void editSongArtist(song s, String artist){
-        s.setArtist(artist);
-    }
-    public void editSongAlbum(song s, String album){
-        s.setAlbum(album);
-    }
-    public void editSongGenre(song s, String genre){
-        s.setGenre(genre);
-    }
-    public void editSongImage(song s, String coverImageUrl){
-        s.setCoverImageUrl(coverImageUrl);
+
+    public void editSongTitle(Song s, String title) {
+        if(s != null && title != null) s.setTitle(title);
     }
 
-
-    public void rateSong(song s, double rating) {
-        s.getRatings().add(rating);
-        double avg = s.getRatings().stream().mapToDouble(Double::doubleValue).average().orElse(0);
-        s.setRating(avg);
+    public void editSongArtist(Song s, String artist) {
+        if(s != null && artist != null) s.setArtist(artist);
     }
-    public void addComment(song s, String comment) { s.getComments().add(comment); }
-    public List<String> getComments(song s) { return s.getComments(); }
 
+    public void editSongAlbum(Song s, String album) {
+        if(s != null && album != null) s.setAlbum(album);
+    }
+
+    public void editSongGenre(Song s, String genre) {
+        if(s != null && genre != null) s.setGenre(genre);
+    }
+
+    public void editSongImage(Song s, String coverImageUrl) {
+        if(s != null && coverImageUrl != null) s.setCoverImageUrl(coverImageUrl);
+    }
+
+    public void rateSong(Song s, double rating) {
+        if(s != null){
+            s.getRatings().add(rating);
+            double avg = s.getRatings().stream().mapToDouble(Double::doubleValue).average().orElse(0);
+            s.setRating(avg);
+        }
+    }
+
+    public void addComment(Song s, Comment comment) {
+        if(s != null && comment != null){
+            s.getComments().add(comment);
+        }
+    }
+
+    public List<Comment> getComments(Song s) {
+        if(s != null) return s.getComments();
+        return new ArrayList<>();
+    }
 }
