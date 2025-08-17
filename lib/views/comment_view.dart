@@ -1,106 +1,138 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'dart:io';
 
 class Comments extends StatefulWidget {
-  final Map<String, dynamic>? myComment;
-  const Comments({Key? test, this.myComment}) : super(key: test);
+  final int songId;
+  final int userId;
+  const Comments({Key? key, required this.songId, required this.userId}) : super(key: key);
 
   @override
   State<Comments> createState() => _CommentsState();
 }
 
 class _CommentsState extends State<Comments> {
-  String sortType = "likes"; //default
-
+  String sortType = "likes"; // default sorting
   List<String> sortTypes = ["likes", "dislikes"];
-
-  List<Map<String, dynamic>> comments = [
-    {
-      "com": "very good",
-      "likes": "10",
-      "dislikes": "2",
-    },
-    {
-      "com": "can be better",
-      "likes": "4",
-      "dislikes": "15",
-    },
-    {
-      "com": "I love it so much",
-      "likes": "20",
-      "dislikes": "6",
-    },
-    {
-      "com": "the best music I heard",
-      "likes": "13",
-      "dislikes": "4",
-    },
-  ];
+  List<Map<String, dynamic>> comments = [];
+  Socket? socket;
 
   @override
   void initState() {
     super.initState();
-    addMyComment();
+    connectToServer();
   }
 
-  void addMyComment() {
-    if(widget.myComment != null) {
-      comments.insert(0, widget.myComment!);
+  void connectToServer() async {
+    try {
+      socket = await Socket.connect('127.0.0.1', 5000);
+      socket!.listen((data) {
+        final response = utf8.decode(data);
+        handleServerResponse(response);
+      });
+      fetchComments();
+    } catch (e) {
+      print("Socket connection error: $e");
     }
   }
 
-  List<Map<String, dynamic>> sort(String sortingmethod, List<Map<String, dynamic>> coms) {
-    List<Map<String, dynamic>> sortedList = coms;
+  void fetchComments() {
+    if (socket == null) return;
+    final request = json.encode({
+      "method": "getComments",
+      "songId": widget.songId,
+    });
+    socket!.write(request + "\n");
+  }
 
-    switch(sortingmethod) {
-      case "likes" :
-        for(int i = 0; i < coms.length - 1; i++) {
-          for(int j = 0; j < coms.length - i - 1; j++) {
-            if(int.parse(coms[j]['likes']) < int.parse(coms[j + 1]['likes'])) {
-              Map<String, dynamic> temp = coms[j];
-              coms[j] = coms[j + 1];
-              coms[j + 1] = temp;
-            }
-          }
-        }
+  void handleServerResponse(String response) {
+    final Map<String, dynamic> jsonResponse = json.decode(response);
+    switch (jsonResponse['method']) {
+      case 'commentsList':
+        setState(() {
+          comments = List<Map<String, dynamic>>.from(jsonResponse['comments']);
+        });
         break;
-
-      case "dislikes" :
-        for(int i = 0; i < coms.length - 1; i++) {
-          for(int j = 0; j < coms.length - i - 1; j++) {
-            if(int.parse(coms[j]['dislikes']) < int.parse(coms[j + 1]['dislikes'])) {
-              Map<String, dynamic> temp = coms[j];
-              coms[j] = coms[j + 1];
-              coms[j + 1] = temp;
+      case 'likeUpdated':
+      case 'dislikeUpdated':
+        setState(() {
+          for (var c in comments) {
+            if (c['id'] == jsonResponse['commentId']) {
+              c['likes'] = jsonResponse['likes'].toString();
+              c['dislikes'] = jsonResponse['dislikes'].toString();
+              break;
             }
           }
-        }
+        });
+        break;
+      case 'commentAdded':
+        setState(() {
+          comments.insert(0, jsonResponse['comment']);
+        });
         break;
     }
+  }
+
+  void likeComment(Map<String, dynamic> comment) {
+    final request = json.encode({
+      "method": "likeComment",
+      "commentId": comment['id'],
+      "userId": widget.userId,
+    });
+    socket!.write(request + "\n");
+  }
+
+  void dislikeComment(Map<String, dynamic> comment) {
+    final request = json.encode({
+      "method": "dislikeComment",
+      "commentId": comment['id'],
+      "userId": widget.userId,
+    });
+    socket!.write(request + "\n");
+  }
+
+  void addComment(String text) {
+    if (text.trim().isEmpty) return;
+    final request = json.encode({
+      "method": "addComment",
+      "songId": widget.songId,
+      "userId": widget.userId,
+      "comment": text.trim(),
+    });
+    socket!.write(request + "\n");
+  }
+
+  List<Map<String, dynamic>> getSortedComments() {
+    List<Map<String, dynamic>> sortedList = List.from(comments);
+    sortedList.sort((a, b) {
+      int aVal = int.parse(a[sortType]);
+      int bVal = int.parse(b[sortType]);
+      return bVal.compareTo(aVal);
+    });
     return sortedList;
   }
 
   @override
   Widget build(BuildContext context) {
-    List<Map<String, dynamic>> sortedComments = sort(sortType, comments);
+    final sortedComments = getSortedComments();
+    final TextEditingController _commentController = TextEditingController();
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
         centerTitle: true,
-        title:
-        Text("Comments",
-          style: TextStyle(
-            fontSize: 28,
-            fontWeight: FontWeight.bold,
-            color: Theme.of(context).colorScheme.secondary,
-          ),
-        ),
+        title: Text("Comments",
+            style: TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).colorScheme.secondary,
+            )),
       ),
       body: Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(12.0),
-            child: DropdownButtonFormField<String>( //scrollAble list
+            child: DropdownButtonFormField<String>(
               value: sortType,
               decoration: InputDecoration(
                 filled: true,
@@ -114,7 +146,7 @@ class _CommentsState extends State<Comments> {
               style: TextStyle(color: Colors.white),
               iconEnabledColor: Colors.white,
               onChanged: (String? newValue) {
-                if(newValue != null) {
+                if (newValue != null) {
                   setState(() {
                     sortType = newValue;
                   });
@@ -128,11 +160,39 @@ class _CommentsState extends State<Comments> {
               }).toList(),
             ),
           ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _commentController,
+                    decoration: InputDecoration(
+                      hintText: 'Write a comment...',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                ),
+                IconButton(
+                  onPressed: () {
+                    final text = _commentController.text;
+                    if (text.trim().isEmpty) return;
+                    addComment(text);
+                    _commentController.clear();
+                  },
+                  icon: Icon(Icons.send, color: Colors.green),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: 10),
           Expanded(
             child: ListView.builder(
               itemCount: sortedComments.length,
               itemBuilder: (context, index) {
-                var comment = sortedComments[index];
+                final comment = sortedComments[index];
                 return ListTile(
                   title: Text(comment["com"]),
                   subtitle: Padding(
@@ -140,13 +200,7 @@ class _CommentsState extends State<Comments> {
                     child: Row(
                       children: [
                         InkWell(
-                          onTap: () {
-                            setState(() {
-                              int currentLikes =
-                                  int.tryParse(comment["likes"]) ?? 0;
-                              comment["likes"] = (currentLikes + 1).toString();
-                            });
-                          },
+                          onTap: () => likeComment(comment),
                           child: Row(
                             children: [
                               Icon(Icons.thumb_up, color: Colors.amber),
@@ -157,13 +211,7 @@ class _CommentsState extends State<Comments> {
                         ),
                         SizedBox(width: 16),
                         InkWell(
-                          onTap: () {
-                            setState(() {
-                              int currentDislikes =
-                                  int.tryParse(comment["dislikes"]) ?? 0;
-                              comment["dislikes"] = (currentDislikes + 1).toString();
-                            });
-                          },
+                          onTap: () => dislikeComment(comment),
                           child: Row(
                             children: [
                               Icon(Icons.thumb_down, color: Colors.amber),
@@ -182,5 +230,11 @@ class _CommentsState extends State<Comments> {
         ],
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    socket?.close();
+    super.dispose();
   }
 }
