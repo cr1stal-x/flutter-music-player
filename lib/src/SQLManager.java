@@ -3,25 +3,18 @@ import com.mpatric.mp3agic.Mp3File;
 import java.io.File;
 import java.sql.*;
 import java.util.*;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 
 public class SQLManager {
 
-
     public static int login(String userInput, String password) {
-        // userInput can be either username or email
         String query = "SELECT id FROM users WHERE (username = ? OR email = ?) AND password = ?";
         try (Connection conn = SQLConnection.connect();
              PreparedStatement stmt = conn.prepareStatement(query)) {
-            stmt.setString(1, userInput); // check username
-            stmt.setString(2, userInput); // check email
+            stmt.setString(1, userInput);
+            stmt.setString(2, userInput);
             stmt.setString(3, password);
             ResultSet rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                return rs.getInt("id");
-            }
+            if (rs.next()) return rs.getInt("id");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -35,9 +28,7 @@ public class SQLManager {
 
             checkStmt.setString(1, username);
             ResultSet checkRs = checkStmt.executeQuery();
-            if (checkRs.next()) {
-                return -1; // Username already exists
-            }
+            if (checkRs.next()) return -1;
 
             String insertQuery = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
             try (PreparedStatement insertStmt = conn.prepareStatement(insertQuery, Statement.RETURN_GENERATED_KEYS)) {
@@ -53,8 +44,7 @@ public class SQLManager {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
-        return 0; // Other error
+        return 0;
     }
 
     public static double getCredit(int id) {
@@ -85,7 +75,6 @@ public class SQLManager {
 
     public static int updateUser(int id, Map<String, Object> updates) {
         if (updates == null || updates.isEmpty()) return 400;
-
         List<String> validFields = Arrays.asList("username", "email", "password", "profile_cover", "credit", "isVip");
         StringBuilder query = new StringBuilder("UPDATE users SET ");
         List<Object> values = new ArrayList<>();
@@ -105,10 +94,7 @@ public class SQLManager {
         try (Connection conn = SQLConnection.connect();
              PreparedStatement stmt = conn.prepareStatement(query.toString())) {
 
-            for (int i = 0; i < values.size(); i++) {
-                stmt.setObject(i + 1, values.get(i));
-            }
-
+            for (int i = 0; i < values.size(); i++) stmt.setObject(i + 1, values.get(i));
             int rows = stmt.executeUpdate();
             return rows > 0 ? 200 : 404;
 
@@ -124,9 +110,7 @@ public class SQLManager {
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setInt(1, id);
             ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                return rs.getInt("id") + "-" + rs.getString("username") + "-" + rs.getDouble("credit");
-            }
+            if (rs.next()) return rs.getInt("id") + "-" + rs.getString("username") + "-" + rs.getDouble("credit");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -159,8 +143,7 @@ public class SQLManager {
                 result.put("email", rs.getString("email"));
                 result.put("credit", rs.getDouble("credit"));
                 result.put("isVip", rs.getBoolean("isVip"));
-                result.put("profile_cover",rs.getString("profile_cover"));
-                System.out.println(result.get("profile_cover"));
+                result.put("profile_cover", rs.getString("profile_cover"));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -180,7 +163,7 @@ public class SQLManager {
                 song.put("title", rs.getString("title"));
                 song.put("artist", rs.getString("artist"));
                 song.put("price", rs.getDouble("price"));
-                song.put("cover_base64",rs.getString("cover_base64"));
+                song.put("cover_base64", rs.getString("cover_base64"));
                 songs.add(song);
             }
         } catch (SQLException e) {
@@ -192,7 +175,6 @@ public class SQLManager {
     public static Map<String, Object> downloadSong(ClientHandler cl, int songId) {
         Map<String, Object> songData = new HashMap<>();
         String query = "SELECT title, artist, price, song_base64, cover_base64 FROM serverSongs WHERE id = ?";
-
         try (Connection conn = SQLConnection.connect();
              PreparedStatement stmt = conn.prepareStatement(query)) {
 
@@ -206,21 +188,14 @@ public class SQLManager {
                     songData.put("song_base64", rs.getString("song_base64"));
                     songData.put("cover_base64", rs.getString("cover_base64"));
 
-                    String insertQuery = """
-                    INSERT INTO downloaded_serverSongs (user_id, song_id)
-                    VALUES (?, ?)
-                    ON DUPLICATE KEY UPDATE song_id = song_id
-                """;
-
+                    String insertQuery = "INSERT INTO downloaded_serverSongs (user_id, song_id) VALUES (?, ?) ON DUPLICATE KEY UPDATE song_id = song_id";
                     try (PreparedStatement insertStmt = conn.prepareStatement(insertQuery)) {
                         insertStmt.setInt(1, cl.id);
                         insertStmt.setInt(2, songId);
                         insertStmt.executeUpdate();
                     }
 
-                } else {
-                    songData.put("error", "Song not found");
-                }
+                } else songData.put("error", "Song not found");
             }
 
         } catch (SQLException e) {
@@ -303,74 +278,69 @@ public class SQLManager {
     }
 
     public static void loadSongs(String directoryPath) {
-            File dir = new File(directoryPath);
-            if (!dir.exists() || !dir.isDirectory()) {
-                System.out.println("❌ Invalid song directory.");
-                return;
-            }
-
-            File[] files = dir.listFiles((d, name) -> name.endsWith(".mp3"));
-            if (files == null || files.length == 0) {
-                System.out.println("⚠️ No mp3 files found.");
-                return;
-            }
-
-            for (File file : files) {
-                try {
-                    Mp3File mp3 = new Mp3File(file);
-                    String title = file.getName().replace(".mp3", "");
-                    String artist = "Unknown";
-                    String songBase64 = Uploader.encodeFileToBase64(file.getAbsolutePath());
-                    String coverBase64 = null;
-
-                    if (mp3.hasId3v2Tag()) {
-                        ID3v2 tag = mp3.getId3v2Tag();
-                        if (tag.getTitle() != null) title = tag.getTitle();
-                        if (tag.getArtist() != null) artist = tag.getArtist();
-
-                        byte[] imageData = tag.getAlbumImage();
-                        if (imageData != null) {
-                            coverBase64 = Uploader.encodeBytesToBase64(imageData);
-                        }
-                    }
-                    double price=title.length()/10.0;
-
-                    try (Connection conn = SQLConnection.connect();
-                         PreparedStatement stmt = conn.prepareStatement(
-                                 "INSERT INTO serverSongs (title, artist, price, song_base64, cover_base64) VALUES (?, ?, ?, ?, ?)")) {
-
-                        stmt.setString(1, title);
-                        stmt.setString(2, artist);
-                        stmt.setDouble(3, price);
-                        stmt.setString(4, songBase64);
-                        stmt.setString(5, coverBase64);
-                        stmt.executeUpdate();
-
-                        System.out.println("✅ Inserted song: " + title);
-                    }
-
-                } catch (Exception e) {
-                    System.out.println("❌ Failed to insert: " + file.getName());
-                    e.printStackTrace();
-                }
-            }
+        File dir = new File(directoryPath);
+        if (!dir.exists() || !dir.isDirectory()) {
+            System.out.println("❌ Invalid song directory.");
+            return;
         }
 
-    public static int getAccByUsername(String username){
-            String query = "SELECT id FROM users WHERE username = ?";
-            int id=-1;
-            try (Connection conn = SQLConnection.connect();
-                 PreparedStatement stmt = conn.prepareStatement(query)) {
-                stmt.setString(1, username);
-                ResultSet rs = stmt.executeQuery();
-                if (rs.next()) {
-                    id= rs.getInt("id");
+        File[] files = dir.listFiles((d, name) -> name.endsWith(".mp3"));
+        if (files == null || files.length == 0) {
+            System.out.println("⚠️ No mp3 files found.");
+            return;
+        }
+
+        for (File file : files) {
+            try {
+                Mp3File mp3 = new Mp3File(file);
+                String title = file.getName().replace(".mp3", "");
+                String artist = "Unknown";
+                String songBase64 = Uploader.encodeFileToBase64(file.getAbsolutePath());
+                String coverBase64 = null;
+
+                if (mp3.hasId3v2Tag()) {
+                    ID3v2 tag = mp3.getId3v2Tag();
+                    if (tag.getTitle() != null) title = tag.getTitle();
+                    if (tag.getArtist() != null) artist = tag.getArtist();
+                    byte[] imageData = tag.getAlbumImage();
+                    if (imageData != null) coverBase64 = Uploader.encodeBytesToBase64(imageData);
                 }
-            } catch (SQLException e) {
+                double price=title.length()/10.0;
+
+                try (Connection conn = SQLConnection.connect();
+                     PreparedStatement stmt = conn.prepareStatement(
+                             "INSERT INTO serverSongs (title, artist, price, song_base64, cover_base64) VALUES (?, ?, ?, ?, ?)")) {
+
+                    stmt.setString(1, title);
+                    stmt.setString(2, artist);
+                    stmt.setDouble(3, price);
+                    stmt.setString(4, songBase64);
+                    stmt.setString(5, coverBase64);
+                    stmt.executeUpdate();
+
+                    System.out.println("✅ Inserted song: " + title);
+                }
+
+            } catch (Exception e) {
+                System.out.println("❌ Failed to insert: " + file.getName());
                 e.printStackTrace();
             }
-            return id;
         }
+    }
+
+    public static int getAccByUsername(String username){
+        String query = "SELECT id FROM users WHERE username = ?";
+        int id=-1;
+        try (Connection conn = SQLConnection.connect();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, username);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) id= rs.getInt("id");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return id;
+    }
 
     public static List<Integer> getPlaylistSongs(int userId, String title) {
         List<Integer> songs = new ArrayList<>();
@@ -380,16 +350,12 @@ public class SQLManager {
             return null;
         }
 
-        String query = "SELECT song_id FROM playlist_localsongs WHERE playlist_id = ? ";
-
-
+        String query = "SELECT song_id FROM playlist_localsongs WHERE playlist_id = ?";
         try (Connection conn = SQLConnection.connect();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setInt(1, playlistId);
             try (ResultSet rs = stmt.executeQuery()) {
-                while (rs.next()) {
-                    songs.add(rs.getInt("song_id"));
-                }
+                while (rs.next()) songs.add(rs.getInt("song_id"));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -404,14 +370,12 @@ public class SQLManager {
             stmt.setInt(1, userId);
             stmt.setString(2, title);
             try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getInt("id");
-                }
+                if (rs.next()) return rs.getInt("id");
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return -1; // not found
+        return -1;
     }
 
     public static List<Map<String, Object>> getPlaylists(int userId) {
@@ -434,13 +398,41 @@ public class SQLManager {
         return playlists;
     }
 
+    //comments
     public static boolean addComment(int songId, int userId, String content) {
         String query = "INSERT INTO comments (user_id, serverSong_id, content) VALUES (?, ?, ?)";
         try (Connection conn = SQLConnection.connect();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+             PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setInt(1, userId);
             stmt.setInt(2, songId);
             stmt.setString(3, content);
+            stmt.executeUpdate();
+            ResultSet rs = stmt.getGeneratedKeys();
+            return rs.next();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public static boolean removeComment(int commentId) {
+        String query = "DELETE FROM comments WHERE id = ?";
+        try (Connection conn = SQLConnection.connect();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, commentId);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public static boolean editComment(int commentId, String newText) {
+        String query = "UPDATE comments SET content = ?, likes = 0, dislikes = 0 WHERE id = ?";
+        try (Connection conn = SQLConnection.connect();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, newText);
+            stmt.setInt(2, commentId);
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -450,7 +442,7 @@ public class SQLManager {
 
     public static List<Map<String,Object>> getComments(int songId) {
         List<Map<String,Object>> comments = new ArrayList<>();
-        String query = "SELECT c.id, c.content, u.username FROM comments c JOIN users u ON c.user_id = u.id WHERE c.serverSong_id = ?";
+        String query = "SELECT c.id, c.content, c.likes, c.dislikes, u.username FROM comments c JOIN users u ON c.user_id = u.id WHERE c.serverSong_id = ?";
         try (Connection conn = SQLConnection.connect();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setInt(1, songId);
@@ -460,6 +452,8 @@ public class SQLManager {
                 comment.put("id", rs.getInt("id"));
                 comment.put("content", rs.getString("content"));
                 comment.put("username", rs.getString("username"));
+                comment.put("likes", rs.getInt("likes"));
+                comment.put("dislikes", rs.getInt("dislikes"));
                 comments.add(comment);
             }
         } catch (SQLException e) {
@@ -468,12 +462,33 @@ public class SQLManager {
         return comments;
     }
 
+    public static boolean likeComment(int commentId) {
+        String query = "UPDATE comments SET likes = likes + 1 WHERE id = ?";
+        try (Connection conn = SQLConnection.connect();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, commentId);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public static boolean dislikeComment(int commentId) {
+        String query = "UPDATE comments SET dislikes = dislikes + 1 WHERE id = ?";
+        try (Connection conn = SQLConnection.connect();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, commentId);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    //ratings
     public static boolean rateSong(int songId, int userId, int rating) {
-        String query = """
-        INSERT INTO song_ratings (user_id, serverSong_id, rating) 
-        VALUES (?, ?, ?)
-        ON DUPLICATE KEY UPDATE rating = ?
-    """;
+        String query = "INSERT INTO song_ratings (user_id, serverSong_id, rating) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE rating = ?";
         try (Connection conn = SQLConnection.connect();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setInt(1, userId);
@@ -493,13 +508,10 @@ public class SQLManager {
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setInt(1, songId);
             ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                return rs.getDouble("avg_rating");
-            }
+            if (rs.next()) return rs.getDouble("avg_rating");
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return 0.0;
+        return 0;
     }
-
 }
