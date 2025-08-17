@@ -4,6 +4,7 @@ import java.io.File;
 import java.sql.*;
 import java.util.*;
 
+
 public class SQLManager {
 
     public static int login(String userInput, String password) {
