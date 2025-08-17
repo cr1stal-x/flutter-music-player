@@ -43,8 +43,14 @@ public class SongService {
     public void editSongImage(song s, String coverImageUrl){
         s.setCoverImageUrl(coverImageUrl);
     }
+
+
     public void rateSong(song s, double rating) {
-        s.setRating(rating);
+        s.getRatings().add(rating);
+        double avg = s.getRatings().stream().mapToDouble(Double::doubleValue).average().orElse(0);
+        s.setRating(avg);
     }
+    public void addComment(song s, String comment) { s.getComments().add(comment); }
+    public List<String> getComments(song s) { return s.getComments(); }
 
 }
