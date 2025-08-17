@@ -91,6 +91,34 @@ public class CommandManager {
 
             case "GetDownloadedSongs": getDownloadSongs(cl); break;
             case "GetAccountInfo": getAccountInfo(cl); break;
+            //cases for comment and rate
+            case "AddComment":
+                extraData = command.get("extraData");
+                if(extraData instanceof Map){
+                    int songId = (int)((Map)extraData).get("songId");
+                    String comment = (String)((Map)extraData).get("comment");
+                    addComment(cl, songId, comment);
+                } else sendError(cl, "Invalid comment data");
+                break;
+
+            case "GetComments":
+                extraData = command.get("extraData");
+                if(extraData instanceof Map){
+                    int songId = (int)((Map)extraData).get("songId");
+                    getComments(cl, songId);
+                } else sendError(cl, "Invalid comment request data");
+                break;
+
+            case "RateSong":
+                extraData = command.get("extraData");
+                if(extraData instanceof Map){
+                    int songId = (int)((Map)extraData).get("songId");
+                    int rating = (int)((Map)extraData).get("rating");
+                    rateSong(cl, songId, rating);
+                } else sendError(cl, "Invalid rating data");
+                break;
+                //**
+
             default: sendError(cl, "Unknown method: " + method); break;
         }
     }
@@ -358,4 +386,43 @@ public class CommandManager {
         result.put("message", deleted ? "Deleted" : "Failed");
         cl.sendJson(gson.toJson(result));
     }
+
+    public void addComment(ClientHandler cl, int songId, String comment) {
+        if(cl.id <= 0){
+            sendError(cl, "not authenticated");
+            return;
+        }
+        boolean success = SQLManager.addComment(songId, cl.id, comment);
+        Map<String,Object> result = new HashMap<>();
+        result.put("method", "addComment");
+        result.put("status-code", success ? 200 : 500);
+        result.put("message", success ? "Comment successfully added" : "Failed to add comment");
+        cl.sendJson(gson.toJson(result));
+    }
+
+    public void getComments(ClientHandler cl, int songId) {
+        List<Map<String,Object>> comments = SQLManager.getComments(songId);
+        Map<String,Object> result = new HashMap<>();
+        result.put("method", "getComments");
+        result.put("status-code", 200);
+        result.put("comments", comments);
+        cl.sendJson(gson.toJson(result));
+    }
+
+    public void rateSong(ClientHandler cl, int songId, int rating) {
+        if(cl.id <= 0){
+            sendError(cl, "not authenticated");
+            return;
+        }
+        boolean success = SQLManager.rateSong(songId, cl.id, rating);
+        double avgRating = SQLManager.getAverageRating(songId);
+
+        Map<String,Object> result = new HashMap<>();
+        result.put("method", "rateSong");
+        result.put("status-code", success ? 200 : 500);
+        result.put("message", success ? "Rating updated" : "Failed to rate");
+        result.put("averageRating", avgRating);
+        cl.sendJson(gson.toJson(result));
+    }
+
 }
