@@ -449,6 +449,4 @@ public class SQLManager {
     public static double getAverageRating(int songId) {
 
     }
-
-
 }
