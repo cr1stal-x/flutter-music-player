@@ -424,5 +424,4 @@ public class CommandManager {
         result.put("averageRating", avgRating);
         cl.sendJson(gson.toJson(result));
     }
-
 }
