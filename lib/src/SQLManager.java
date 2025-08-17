@@ -434,19 +434,72 @@ public class SQLManager {
         return playlists;
     }
 
-    public static boolean addComment(int songId, int userId, String comment) {
-
+    public static boolean addComment(int songId, int userId, String content) {
+        String query = "INSERT INTO comments (user_id, serverSong_id, content) VALUES (?, ?, ?)";
+        try (Connection conn = SQLConnection.connect();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, userId);
+            stmt.setInt(2, songId);
+            stmt.setString(3, content);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     public static List<Map<String,Object>> getComments(int songId) {
-
+        List<Map<String,Object>> comments = new ArrayList<>();
+        String query = "SELECT c.id, c.content, u.username FROM comments c JOIN users u ON c.user_id = u.id WHERE c.serverSong_id = ?";
+        try (Connection conn = SQLConnection.connect();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, songId);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                Map<String,Object> comment = new HashMap<>();
+                comment.put("id", rs.getInt("id"));
+                comment.put("content", rs.getString("content"));
+                comment.put("username", rs.getString("username"));
+                comments.add(comment);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return comments;
     }
 
     public static boolean rateSong(int songId, int userId, int rating) {
-
+        String query = """
+        INSERT INTO song_ratings (user_id, serverSong_id, rating) 
+        VALUES (?, ?, ?)
+        ON DUPLICATE KEY UPDATE rating = ?
+    """;
+        try (Connection conn = SQLConnection.connect();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, userId);
+            stmt.setInt(2, songId);
+            stmt.setInt(3, rating);
+            stmt.setInt(4, rating);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     public static double getAverageRating(int songId) {
-
+        String query = "SELECT AVG(rating) as avg_rating FROM song_ratings WHERE serverSong_id = ?";
+        try (Connection conn = SQLConnection.connect();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, songId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getDouble("avg_rating");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0.0;
     }
+
 }
