@@ -434,4 +434,21 @@ public class SQLManager {
         return playlists;
     }
 
+    public static boolean addComment(int songId, int userId, String comment) {
+
+    }
+
+    public static List<Map<String,Object>> getComments(int songId) {
+
+    }
+
+    public static boolean rateSong(int songId, int userId, int rating) {
+
+    }
+
+    public static double getAverageRating(int songId) {
+
+    }
+
+
 }
