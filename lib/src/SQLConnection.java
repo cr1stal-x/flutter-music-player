@@ -31,7 +31,9 @@ class ScriptRunner {
             }
         }
 
+        /* automatically close
         br.close();
         stmt.close();
+         */
     }
 }
