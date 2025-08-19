@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS serverSongs (
   title TEXT,
   artist TEXT,
   price DOUBLE DEFAULT 0.00,
+  category VARCHAR(100),
   song_base64 LONGTEXT,
   cover_base64 LONGTEXT
 );

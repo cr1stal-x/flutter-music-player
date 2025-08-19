@@ -302,17 +302,25 @@ public class SQLManager {
         return false;
     }
 
-    public static void loadSongs(String directoryPath) {
-            File dir = new File(directoryPath);
-            if (!dir.exists() || !dir.isDirectory()) {
-                System.out.println("❌ Invalid song directory.");
-                return;
-            }
+    public static void loadSongs(String rootPath) {
+        File rootDir = new File(rootPath);
+        if (!rootDir.exists() || !rootDir.isDirectory()) {
+            System.out.println("❌ Invalid root directory.");
+            return;
+        }
+        File[] categoryDirs = rootDir.listFiles(File::isDirectory);
+        if (categoryDirs == null || categoryDirs.length == 0) {
+            System.out.println("⚠️ No category folders found.");
+            return;
+        }
 
-            File[] files = dir.listFiles((d, name) -> name.endsWith(".mp3"));
+        for (File categoryDir : categoryDirs) {
+            String category = categoryDir.getName(); //folder name as category
+
+            File[] files = categoryDir.listFiles((d, name) -> name.toLowerCase().endsWith(".mp3"));
             if (files == null || files.length == 0) {
-                System.out.println("⚠️ No mp3 files found.");
-                return;
+                System.out.println("⚠️ No mp3 files in: " + category);
+                continue;
             }
 
             for (File file : files) {
@@ -325,36 +333,40 @@ public class SQLManager {
 
                     if (mp3.hasId3v2Tag()) {
                         ID3v2 tag = mp3.getId3v2Tag();
-                        if (tag.getTitle() != null) title = tag.getTitle();
-                        if (tag.getArtist() != null) artist = tag.getArtist();
+                        if (tag.getTitle() != null && !tag.getTitle().isBlank()) title = tag.getTitle();
+                        if (tag.getArtist() != null && !tag.getArtist().isBlank()) artist = tag.getArtist();
 
                         byte[] imageData = tag.getAlbumImage();
                         if (imageData != null) {
                             coverBase64 = Uploader.encodeBytesToBase64(imageData);
                         }
                     }
-                    double price=title.length()/10.0;
+
+                    double price = title.length() / 10.0;
 
                     try (Connection conn = SQLConnection.connect();
                          PreparedStatement stmt = conn.prepareStatement(
-                                 "INSERT INTO serverSongs (title, artist, price, song_base64, cover_base64) VALUES (?, ?, ?, ?, ?)")) {
+                                 "INSERT INTO serverSongs (title, artist, price, category, song_base64, cover_base64) VALUES (?, ?, ?, ?, ?, ?)")) {
 
                         stmt.setString(1, title);
                         stmt.setString(2, artist);
                         stmt.setDouble(3, price);
-                        stmt.setString(4, songBase64);
-                        stmt.setString(5, coverBase64);
+                        stmt.setString(4, category);
+                        stmt.setString(5, songBase64);
+                        stmt.setString(6, coverBase64);
                         stmt.executeUpdate();
 
-                        System.out.println("✅ Inserted song: " + title);
+                        System.out.println("✅ Inserted song: " + title + " [Category: " + category + "]");
                     }
 
                 } catch (Exception e) {
-                    System.out.println("❌ Failed to insert: " + file.getName());
+                    System.out.println("❌ Failed to insert: " + file.getName() + " in " + category);
                     e.printStackTrace();
                 }
             }
         }
+    }
+
 
     public static int getAccByUsername(String username){
             String query = "SELECT id FROM users WHERE username = ?";
