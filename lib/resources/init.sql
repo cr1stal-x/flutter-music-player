@@ -36,7 +36,6 @@ CREATE TABLE IF NOT EXISTS playlist_localSongs (
   FOREIGN KEY (song_id) REFERENCES serverSongs(id) ON DELETE CASCADE
 );
 
--- جدول کامنت‌ها با تاریخ درج
 CREATE TABLE IF NOT EXISTS comments (
   id INTEGER PRIMARY KEY AUTO_INCREMENT,
   user_id INTEGER NOT NULL,
