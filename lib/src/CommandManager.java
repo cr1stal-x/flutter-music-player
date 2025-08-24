@@ -39,6 +39,7 @@ public class CommandManager {
                 }
             break;
             case "GetServerSongs": getServerSongs(cl); break;
+            case "getCategories": getCategories(cl); break;
             case "ChatWithAdmin": Object extraData = command.get("extraData");
                 if(extraData instanceof Map){
                     String message = (String)((Map)extraData).get("message");
@@ -91,8 +92,172 @@ public class CommandManager {
 
             case "GetDownloadedSongs": getDownloadSongs(cl); break;
             case "GetAccountInfo": getAccountInfo(cl); break;
+            case "rate": extraData=command.get("extraData");
+                if(extraData instanceof Map){
+                    double songId = (double)((Map)extraData).get("songId");
+                    double rating=(double) ((Map)extraData).get("rating");
+                    rate(cl, rating, songId);
+                } else {
+                    sendError(cl, "Invalid username");
+                }
+                break;
+            case "getRating":
+                extraData=command.get("extraData");
+                if(extraData instanceof Map){
+                    double songId = (double)((Map)extraData).get("songId");
+                    getRating(cl,songId);
+                } else {
+                    sendError(cl, "Invalid");
+                }
+                break;
+            case "getComments":
+                extraData = command.get("extraData");
+                if (extraData instanceof Map) {
+                    double songId = (double) ((Map) extraData).get("songId");
+                    getComments(cl, songId);
+                } else {
+                    sendError(cl, "Invalid");
+                }
+                break;
+
+            case "addComment":
+                extraData = command.get("extraData");
+                if (extraData instanceof Map) {
+                    double songId = (double) ((Map) extraData).get("songId");
+                    String username = command.get("username");
+                    String text = (String) ((Map) extraData).get("comment");
+                    addComment(cl, songId, username, text);
+                } else {
+                    sendError(cl, "Invalid");
+                }
+                break;
+
+            case "likeComment":
+                extraData = command.get("extraData");
+                if (extraData instanceof Map) {
+                    double commentId = (double) ((Map) extraData).get("commentId");
+                    likeComment(cl, commentId);
+                } else {
+                    sendError(cl, "Invalid");
+                }
+                break;
+
+            case "dislikeComment":
+                extraData = command.get("extraData");
+                if (extraData instanceof Map) {
+                    double commentId = (double) ((Map) extraData).get("commentId");
+                    dislikeComment(cl, commentId);
+                } else {
+                    sendError(cl, "Invalid");
+                }
+                break;
+            case "updateComment":
+                extraData = command.get("extraData");
+                if (extraData instanceof Map) {
+                    double commentId = (double) ((Map) extraData).get("commentId");
+                    String newContent=(String)((Map) extraData).get("newContent");
+                    updateComment(commentId,newContent,cl);
+                } else {
+                    sendError(cl, "Invalid");
+                }
+                break;
+            case "deleteComment":
+                extraData = command.get("extraData");
+                if (extraData instanceof Map) {
+                    double commentId = (double) ((Map) extraData).get("commentId");
+                    String username=command.get("username");
+                    int id=SQLManager.getAccByUsername(username);
+                    deleteComment(cl,commentId,id);
+                } else {
+                    sendError(cl, "Invalid");
+                }
+                break;
             default: sendError(cl, "Unknown method: " + method); break;
         }
+    }
+
+    private void updateComment(double commentId, String newContent,ClientHandler cl) {
+        boolean success = SQLManager.updateCommentContent((int) commentId,cl.id,newContent);
+        Map<String, Object> result = new HashMap<>();
+        result.put("method", "updateComment");
+        if (success) {
+            result.put("status-code", 200);
+            result.put("message", "updated");
+        } else {
+            result.put("status-code", 500);
+            result.put("message", "Failed");
+        }
+        cl.sendJson(gson.toJson(result));
+    }
+
+    private void getCategories(ClientHandler cl) {
+        List<String> categ=SQLManager.getCategories();
+        Map<String, Object> result = new HashMap<>();
+        result.put("method", "getCategories");
+        if (!categ.isEmpty()) {
+            result.put("categories",categ);
+            result.put("status-code", 200);
+            result.put("message", "successfully");
+        } else {
+            result.put("status-code", 500);
+            result.put("message", "Failed");
+        }
+        cl.sendJson(gson.toJson(result));
+    }
+
+    private void addComment(ClientHandler cl, double songId, String username, String text) {
+        int userId = SQLManager.getAccByUsername(username);
+        boolean success = SQLManager.addComment((int)songId, userId, text);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("method", "addComment");
+        if (success) {
+            result.put("status-code", 200);
+            result.put("message", "Comment added successfully");
+        } else {
+            result.put("status-code", 500);
+            result.put("message", "Failed to add comment");
+        }
+        cl.sendJson(gson.toJson(result));
+    }
+
+    private void likeComment(ClientHandler cl, double commentId) {
+        boolean success = SQLManager.likeComment((int) commentId);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("method", "likeComment");
+        if (success) {
+            result.put("status-code", 200);
+            result.put("message", "Comment liked");
+        } else {
+            result.put("status-code", 500);
+            result.put("message", "Failed to like comment");
+        }
+        cl.sendJson(gson.toJson(result));
+    }
+
+    private void dislikeComment(ClientHandler cl, double commentId) {
+        boolean success = SQLManager.dislikeComment((int) commentId);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("method", "dislikeComment");
+        if (success) {
+            result.put("status-code", 200);
+            result.put("message", "Comment disliked");
+        } else {
+            result.put("status-code", 500);
+            result.put("message", "Failed to dislike comment");
+        }
+        cl.sendJson(gson.toJson(result));
+    }
+
+    private void getComments(ClientHandler cl, double songId) {
+        List<Map<String, Object>>comments = SQLManager.getComments((int)songId); // implement this helper
+        Map<String, Object> result = new HashMap<>();
+        result.put("method", "getComments");
+        result.put("status-code", 200);
+        result.put("comments", comments);
+        cl.sendJson(gson.toJson(result));
     }
 
     private void getPlaylistSongs(ClientHandler cl,String playlistName, int userId) {
@@ -112,7 +277,6 @@ public class CommandManager {
         result.put("playlists", playlists);
         cl.sendJson(gson.toJson(result));
     }
-
 
     private void sendError(ClientHandler cl, String message)  {
         Map<String, Object> result = new HashMap<>();
@@ -286,6 +450,9 @@ public class CommandManager {
             sendError(cl, (String) songdata.get("error"));
             return;
         }
+        if(songdata.containsKey("message")){
+            sendError(cl,(String) songdata.get("message"));
+        }
 
         Map<String, Object> result = new HashMap<>();
         result.put("status-code", 200);
@@ -357,5 +524,33 @@ public class CommandManager {
         result.put("method", "deletePlaylist");
         result.put("message", deleted ? "Deleted" : "Failed");
         cl.sendJson(gson.toJson(result));
+    }
+
+    public void rate(ClientHandler cl, double rating, double songId){
+        boolean rated=SQLManager.rate(songId,rating);
+        Map<String, Object> result = new HashMap<>();
+        result.put("status-code", rated ? 200 : 500);
+        result.put("method", "rate");
+        result.put("message", rated ? "rated" : "Failed");
+        cl.sendJson(gson.toJson(result));
+
+    }
+
+    public void getRating(ClientHandler cl,double songId){
+        Map<String, Object> ratings=SQLManager.getRating(songId);
+        Map<String, Object> result = new HashMap<>();
+        result.put("status-code", !ratings.isEmpty() ? 200 : 500);
+        result.put("rate",ratings);
+        result.put("method", "getRating");
+        cl.sendJson(gson.toJson(result));
+    }
+
+    public void deleteComment(ClientHandler cl, double commentId, double id){
+        boolean success=SQLManager.deleteComment((int) commentId, (int)id);
+            Map<String, Object> result = new HashMap<>();
+            result.put("status-code", success ? 200 : 500);
+            result.put("method", "deletePlaylist");
+            result.put("message", success ? "Deleted" : "Failed");
+            cl.sendJson(gson.toJson(result));
     }
 }

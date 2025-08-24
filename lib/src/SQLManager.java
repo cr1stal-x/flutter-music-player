@@ -2,6 +2,8 @@ import com.mpatric.mp3agic.ID3v2;
 import com.mpatric.mp3agic.Mp3File;
 import java.io.File;
 import java.sql.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -10,7 +12,6 @@ public class SQLManager {
 
 
     public static int login(String userInput, String password) {
-        // userInput can be either username or email
         String query = "SELECT id FROM users WHERE (username = ? OR email = ?) AND password = ?";
         try (Connection conn = SQLConnection.connect();
              PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -170,7 +171,7 @@ public class SQLManager {
 
     public static List<Map<String, Object>> getServerSongs() {
         List<Map<String, Object>> songs = new ArrayList<>();
-        String query = "SELECT id, title, artist, price, cover_base64 FROM serverSongs";
+        String query = "SELECT id, title, artist, price,download_time, category, rating, rating_count, cover_base64 FROM serverSongs";
         try (Connection conn = SQLConnection.connect();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
@@ -180,6 +181,10 @@ public class SQLManager {
                 song.put("title", rs.getString("title"));
                 song.put("artist", rs.getString("artist"));
                 song.put("price", rs.getDouble("price"));
+                song.put("download_time", rs.getInt("download_time"));
+                song.put("category", rs.getString("category"));
+                song.put("rating", rs.getDouble("rating"));
+                song.put("rating_count", rs.getInt("rating_count"));
                 song.put("cover_base64",rs.getString("cover_base64"));
                 songs.add(song);
             }
@@ -191,43 +196,62 @@ public class SQLManager {
 
     public static Map<String, Object> downloadSong(ClientHandler cl, int songId) {
         Map<String, Object> songData = new HashMap<>();
-        String query = "SELECT title, artist, price, song_base64, cover_base64 FROM serverSongs WHERE id = ?";
+        String query = "SELECT title, artist, price, download_time, song_base64, cover_base64 FROM serverSongs WHERE id = ?";
 
         try (Connection conn = SQLConnection.connect();
              PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setInt(1, songId);
             try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    songData.put("songId", songId);
-                    songData.put("title", rs.getString("title"));
-                    songData.put("artist", rs.getString("artist"));
-                    songData.put("price", rs.getDouble("price"));
-                    songData.put("song_base64", rs.getString("song_base64"));
-                    songData.put("cover_base64", rs.getString("cover_base64"));
-
-                    String insertQuery = """
-                    INSERT INTO downloaded_serverSongs (user_id, song_id)
-                    VALUES (?, ?)
-                    ON DUPLICATE KEY UPDATE song_id = song_id
-                """;
-
-                    try (PreparedStatement insertStmt = conn.prepareStatement(insertQuery)) {
-                        insertStmt.setInt(1, cl.id);
-                        insertStmt.setInt(2, songId);
-                        insertStmt.executeUpdate();
-                    }
-
-                } else {
+                if (!rs.next()) {
                     songData.put("error", "Song not found");
+                    return songData;
                 }
-            }
 
+                songData.put("songId", songId);
+                songData.put("title", rs.getString("title"));
+                songData.put("artist", rs.getString("artist"));
+                songData.put("price", rs.getDouble("price"));
+                songData.put("download_time", rs.getInt("download_time"));
+                songData.put("song_base64", rs.getString("song_base64"));
+                songData.put("cover_base64", rs.getString("cover_base64"));
+
+                String checkQuery = "SELECT 1 FROM downloaded_serverSongs WHERE user_id = ? AND song_id = ?";
+                try (PreparedStatement checkStmt = conn.prepareStatement(checkQuery)) {
+                    checkStmt.setInt(1, cl.id);
+                    checkStmt.setInt(2, songId);
+                    try (ResultSet checkRs = checkStmt.executeQuery()) {
+                        if (checkRs.next()) {
+                            songData.put("message", "You downloaded this before");
+                            return songData;
+                        }
+                    }
+                }
+
+                String insertQuery = """
+                INSERT INTO downloaded_serverSongs (user_id, song_id)
+                VALUES (?, ?)
+            """;
+                try (PreparedStatement insertStmt = conn.prepareStatement(insertQuery)) {
+                    insertStmt.setInt(1, cl.id);
+                    insertStmt.setInt(2, songId);
+                    insertStmt.executeUpdate();
+                }
+
+                String updateQuery = "UPDATE serverSongs SET download_time = download_time + 1 WHERE id = ?";
+                try (PreparedStatement updateStmt = conn.prepareStatement(updateQuery)) {
+                    updateStmt.setInt(1, songId);
+                    updateStmt.executeUpdate();
+                }
+
+                songData.put("download_time", ((int) songData.get("download_time")) + 1);
+                songData.put("message", "Song downloaded successfully");
+            }
         } catch (SQLException e) {
             e.printStackTrace();
             songData.put("error", "Database error");
         }
-
+        System.out.println(songData);
         return songData;
     }
 
@@ -269,6 +293,67 @@ public class SQLManager {
         return false;
     }
 
+    public static List<Integer> getPlaylistSongs(int userId, String title) {
+        List<Integer> songs = new ArrayList<>();
+        int playlistId = getPlaylistId(userId, title);
+        if (playlistId == -1) {
+            System.out.println("Playlist not found for user " + userId);
+            return null;
+        }
+
+        String query = "SELECT song_id FROM playlist_localsongs WHERE playlist_id = ? ";
+
+
+        try (Connection conn = SQLConnection.connect();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, playlistId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    songs.add(rs.getInt("song_id"));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return songs;
+    }
+    public static int getPlaylistId(int userId, String title) {
+        String query = "SELECT id FROM playlists WHERE user_id = ? AND title = ?";
+        try (Connection conn = SQLConnection.connect();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, userId);
+            stmt.setString(2, title);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("id");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1; // not found
+    }
+
+    public static List<Map<String, Object>> getPlaylists(int userId) {
+        List<Map<String, Object>> playlists = new ArrayList<>();
+        String query = "SELECT id, title FROM playlists WHERE user_id = ?";
+        try (Connection conn = SQLConnection.connect();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, userId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Map<String, Object> playlist = new HashMap<>();
+                    playlist.put("id", rs.getInt("id"));
+                    playlist.put("title", rs.getString("title"));
+                    playlists.add(playlist);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return playlists;
+    }
+
     public static List<Map<String, Object>> getDownloadedSongs(int userId) {
         List<Map<String, Object>> songs = new ArrayList<>();
         String query = "SELECT s.id, s.title, s.artist FROM downloaded_serverSongs d JOIN serverSongs s ON d.song_id = s.id WHERE d.user_id = ?";
@@ -302,20 +387,24 @@ public class SQLManager {
         return false;
     }
 
-    public static void loadSongs(String rootPath) {
+    public static List<String> loadSongs(String rootPath) {
         File rootDir = new File(rootPath);
         if (!rootDir.exists() || !rootDir.isDirectory()) {
             System.out.println("❌ Invalid root directory.");
-            return;
+            return Collections.emptyList();
         }
+
         File[] categoryDirs = rootDir.listFiles(File::isDirectory);
         if (categoryDirs == null || categoryDirs.length == 0) {
             System.out.println("⚠️ No category folders found.");
-            return;
+            return Collections.emptyList();
         }
 
+        Set<String> uniqueCategories = new HashSet<>();
+
         for (File categoryDir : categoryDirs) {
-            String category = categoryDir.getName(); //folder name as category
+            String category = categoryDir.getName(); // folder name as category
+            uniqueCategories.add(category);
 
             File[] files = categoryDir.listFiles((d, name) -> name.toLowerCase().endsWith(".mp3"));
             if (files == null || files.length == 0) {
@@ -365,8 +454,9 @@ public class SQLManager {
                 }
             }
         }
-    }
 
+        return new ArrayList<>(uniqueCategories);
+    }
 
     public static int getAccByUsername(String username){
             String query = "SELECT id FROM users WHERE username = ?";
@@ -384,66 +474,175 @@ public class SQLManager {
             return id;
         }
 
-    public static List<Integer> getPlaylistSongs(int userId, String title) {
-        List<Integer> songs = new ArrayList<>();
-        int playlistId = getPlaylistId(userId, title);
-        if (playlistId == -1) {
-            System.out.println("Playlist not found for user " + userId);
-            return null;
-        }
-
-        String query = "SELECT song_id FROM playlist_localsongs WHERE playlist_id = ? ";
-
+    public static boolean rate(double songId, double newRating) {
+        String selectQuery = "SELECT rating, rating_count FROM serverSongs WHERE id = ?";
+        String updateQuery = "UPDATE serverSongs SET rating = ?, rating_count = ? WHERE id = ?";
 
         try (Connection conn = SQLConnection.connect();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
-            stmt.setInt(1, playlistId);
-            try (ResultSet rs = stmt.executeQuery()) {
-                while (rs.next()) {
-                    songs.add(rs.getInt("song_id"));
+             PreparedStatement selectStmt = conn.prepareStatement(selectQuery)) {
+
+            selectStmt.setDouble(1, songId);
+            ResultSet rs = selectStmt.executeQuery();
+
+            if (rs.next()) {
+                double currentRating = rs.getDouble("rating");
+                int ratingCount = rs.getInt("rating_count");
+
+                double total = currentRating * ratingCount;
+                double newAverage = (total + newRating) / (ratingCount + 1);
+
+                try (PreparedStatement updateStmt = conn.prepareStatement(updateQuery)) {
+                    updateStmt.setDouble(1, newAverage);
+                    updateStmt.setInt(2, ratingCount + 1);
+                    updateStmt.setDouble(3, songId);
+                    return updateStmt.executeUpdate() > 0;
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return songs;
+        return false;
     }
 
-    public static int getPlaylistId(int userId, String title) {
-        String query = "SELECT id FROM playlists WHERE user_id = ? AND title = ?";
+    public static Map<String, Object> getRating(double songId) {
+        Map<String, Object> result = new HashMap<>();
+        String selectQuery = "SELECT rating, rating_count FROM serverSongs WHERE id = ?";
+        try (Connection conn = SQLConnection.connect();
+             PreparedStatement selectStmt = conn.prepareStatement(selectQuery)) {
+
+            selectStmt.setDouble(1, songId);
+            ResultSet rs = selectStmt.executeQuery();
+
+            if (rs.next()) {
+                double rating = rs.getDouble("rating");
+                int ratingCount = rs.getInt("rating_count");
+                result.put("rating",rating);
+                result.put("ratingCount", ratingCount);
+            }
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    public static boolean addComment(int songId, int userId, String content) {
+        String query = "INSERT INTO comments (user_id, serverSong_id, content, created_at) VALUES (?, ?, ?, NOW())";
         try (Connection conn = SQLConnection.connect();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setInt(1, userId);
-            stmt.setString(2, title);
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getInt("id");
-                }
-            }
-        } catch (SQLException e) {
+            stmt.setInt(2, songId);
+            stmt.setString(3, content);
+            return stmt.executeUpdate() > 0;
+        } catch (Exception e) {
             e.printStackTrace();
+            return false;
         }
-        return -1; // not found
     }
 
-    public static List<Map<String, Object>> getPlaylists(int userId) {
-        List<Map<String, Object>> playlists = new ArrayList<>();
-        String query = "SELECT id, title FROM playlists WHERE user_id = ?";
+
+    public static List<Map<String, Object>> getComments(int songId) {
+        String query = "SELECT c.id, c.content, c.likes, c.dislikes, c.created_at, u.username " +
+                "FROM comments c JOIN users u ON c.user_id = u.id " +
+                "WHERE c.serverSong_id = ? ORDER BY c.id DESC";
+
+        List<Map<String, Object>> comments = new ArrayList<>();
+
         try (Connection conn = SQLConnection.connect();
              PreparedStatement stmt = conn.prepareStatement(query)) {
-            stmt.setInt(1, userId);
-            try (ResultSet rs = stmt.executeQuery()) {
-                while (rs.next()) {
-                    Map<String, Object> playlist = new HashMap<>();
-                    playlist.put("id", rs.getInt("id"));
-                    playlist.put("title", rs.getString("title"));
-                    playlists.add(playlist);
-                }
+            stmt.setInt(1, songId);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                Map<String, Object> comment = new HashMap<>();
+                comment.put("id", rs.getInt("id"));
+                comment.put("content", rs.getString("content"));
+                comment.put("likes", rs.getInt("likes"));
+                comment.put("dislikes", rs.getInt("dislikes"));
+                comment.put("username", rs.getString("username"));
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                comment.put("created_at", rs.getObject("created_at", LocalDateTime.class).format(formatter));
+                comments.add(comment);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return comments;
+    }
+
+    public static boolean likeComment(int commentId) {
+        String query = "UPDATE comments SET likes = likes + 1 WHERE id = ?";
+        try (Connection conn = SQLConnection.connect();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, commentId);
+            return stmt.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public static boolean dislikeComment(int commentId) {
+        String query = "UPDATE comments SET dislikes = dislikes + 1 WHERE id = ?";
+        try (Connection conn = SQLConnection.connect();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, commentId);
+            return stmt.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public static List<String> getCategories(){
+        List<String> categories = new ArrayList<>();
+        String query = "SELECT category FROM serverSongs";
+        try (Connection conn = SQLConnection.connect();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+            while (rs.next()) {
+                categories.add(rs.getString("category"));
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return playlists;
+        return categories;
+    }
+
+    public static boolean updateCommentContent(int commentId, int userId, String newContent) {
+        String sql = "UPDATE comments SET content = ? WHERE id = ? AND user_id = ?";
+
+        try (Connection conn = SQLConnection.connect();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, newContent);
+            stmt.setInt(2, commentId);
+            stmt.setInt(3, userId);
+            System.out.println(commentId+userId+newContent);
+            int affectedRows = stmt.executeUpdate();
+            return affectedRows > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public static boolean deleteComment(int commentId, int userId) {
+        String sql = "DELETE FROM comments WHERE id = ? AND user_id = ?";
+
+        try (Connection conn = SQLConnection.connect();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, commentId);
+            ps.setInt(2, userId);
+
+            int rowsAffected = ps.executeUpdate();
+            return rowsAffected > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
 }

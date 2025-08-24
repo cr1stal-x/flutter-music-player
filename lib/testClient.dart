@@ -4,6 +4,7 @@ import 'dart:io';
 
 class CommandClient {
   final String serverAddress = '192.168.1.8';
+  //
   final int serverPort = 5000;
   Socket? _socket;
   bool _connecting = false;

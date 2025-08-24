@@ -4,9 +4,9 @@ public class PasswordGenerator {
     private static final String UPPER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     private static final String LOWER = "abcdefghijklmnopqrstuvwxyz";
     private static final String DIGITS = "0123456789";
-    private static final String SPECIAL = "!@#$%^&*()-_=+[]{}|;:,.<>?";
+//    private static final String SPECIAL = "!@#$%^&*()-_=+[]{}|;:,.<>?";
 
-    private static final String ALL = UPPER + LOWER + DIGITS + SPECIAL;
+    private static final String ALL = UPPER + LOWER + DIGITS;
     private static final SecureRandom random = new SecureRandom();
 
     public static String generatePassword(int length) {
@@ -16,7 +16,6 @@ public class PasswordGenerator {
         password.append(randomChar(UPPER));
         password.append(randomChar(LOWER));
         password.append(randomChar(DIGITS));
-        password.append(randomChar(SPECIAL));
 
         for (int i = 4; i < length; i++) {
             password.append(randomChar(ALL));

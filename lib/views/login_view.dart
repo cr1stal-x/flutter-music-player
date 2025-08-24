@@ -248,10 +248,7 @@ class _LoginState extends State<Login> {
                                     if(newValue.isNotEmpty) {
                                       _forgetPassword(newValue);
                                     }
-                                    Navigator.pop(context);
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text("new password sent to your email.")),
-                                    );
+
                                   },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Theme.of(context).colorScheme.secondary,

@@ -2,6 +2,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.sql.Connection;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -12,7 +13,7 @@ public class Server {
             try (Connection conn = SQLConnection.connect()) {
                 ScriptRunner.runScript(conn, "C:\\Users\\user\\musix\\lib\\resources\\init.sql");
                 System.out.println("Database and table initialized.");
-                SQLManager.loadSongs("E:\\ServerSongs\\");
+//                List<String> categories=SQLManager.loadSongs("E:\\ServerSongs\\");
             } catch (Exception e) {
                 e.printStackTrace();
             }

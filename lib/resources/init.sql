@@ -18,6 +18,9 @@ CREATE TABLE IF NOT EXISTS serverSongs (
   artist TEXT,
   price DOUBLE DEFAULT 0.00,
   category VARCHAR(100),
+  rating DOUBLE DEFAULT 0.00,
+  rating_count INTEGER DEFAULT 0,
+  download_time INTEGER DEFAULT 0,
   song_base64 LONGTEXT,
   cover_base64 LONGTEXT
 );
@@ -35,13 +38,17 @@ CREATE TABLE IF NOT EXISTS playlist_localSongs (
   FOREIGN KEY (playlist_id) REFERENCES playlists(id) ON DELETE CASCADE
 );
 CREATE TABLE IF NOT EXISTS comments (
-  id INTEGER PRIMARY KEY auto_increment,
+  id INTEGER PRIMARY KEY AUTO_INCREMENT,
   user_id INTEGER NOT NULL,
   serverSong_id INTEGER NOT NULL,
   content TEXT NOT NULL,
+  likes INT DEFAULT 0,
+  dislikes INT DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
   FOREIGN KEY (serverSong_id) REFERENCES serverSongs(id) ON DELETE CASCADE
 );
+
 CREATE TABLE IF NOT EXISTS downloaded_serverSongs (
   user_id INTEGER,
   song_id INTEGER,

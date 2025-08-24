@@ -155,7 +155,7 @@ class _UserAccount extends State<UserAccount> {
                         ),
                       ),
                       Text(
-                        "${authProvider.credit ?? '0.0'}",
+                        authProvider.credit?.toStringAsFixed(2) ?? '0.0',
                         textAlign: TextAlign.center,
                         style: TextStyle(fontSize: 18),
                       ),
@@ -480,6 +480,7 @@ class _UserAccount extends State<UserAccount> {
 
   void showEditInputDialog(BuildContext context, String field) {
     TextEditingController controller = TextEditingController();
+    TextEditingController confirmController = TextEditingController();
 
     showDialog(
       context: context,
@@ -487,13 +488,28 @@ class _UserAccount extends State<UserAccount> {
         return AlertDialog(
           backgroundColor: Colors.white70,
           title: Text("Enter new $field"),
-          content: TextField(
-            controller: controller,
-            obscureText: field == "password",
-            decoration: InputDecoration(
-              border: OutlineInputBorder(),
-              labelText:"New",
-            ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: controller,
+                obscureText: field == "password",
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: "New",
+                ),
+              ),
+              if (field == "password") const SizedBox(height: 12),
+              if (field == "password")
+                TextField(
+                  controller: confirmController,
+                  obscureText: true,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: "Confirm Password",
+                  ),
+                ),
+            ],
           ),
           actions: [
             Row(
@@ -508,25 +524,52 @@ class _UserAccount extends State<UserAccount> {
                     foregroundColor: Theme.of(context).colorScheme.secondary,
                     side: BorderSide(color: Theme.of(context).colorScheme.secondary),
                   ),
-                  child: Text("Cancel"),
+                  child: const Text("Cancel"),
                 ),
-                SizedBox(width: 20),
+                const SizedBox(width: 20),
                 ElevatedButton(
                   onPressed: () {
                     String newValue = controller.text.trim();
-                    if(newValue.isNotEmpty) {
+
+                    if (newValue.isNotEmpty) {
+                      if (field == "password") {
+                        final passwordRegex = RegExp(
+                          r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$',
+                        );
+
+                        if (!passwordRegex.hasMatch(newValue)) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                "Password must be at least 8 chars, include upper, lower, number, and special char.",
+                              ),
+                            ),
+                          );
+                          return;
+                        }
+
+                        if (newValue != confirmController.text.trim()) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text("Passwords do not match."),
+                            ),
+                          );
+                          return;
+                        }
+                      }
+
                       edit(field, newValue);
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("$field edited!")),
+                      );
                     }
-                    Navigator.pop(context);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text("$field edited!")),
-                    );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Theme.of(context).colorScheme.secondary,
                     foregroundColor: Colors.white,
                   ),
-                  child: Text("Save"),
+                  child: const Text("Save"),
                 ),
               ],
             ),
@@ -535,6 +578,8 @@ class _UserAccount extends State<UserAccount> {
       },
     );
   }
+
+
 
   void showPremiumOptions(BuildContext context) {
     showDialog(

@@ -147,7 +147,14 @@ class TracksScreen extends StatelessWidget {
               trailing: PopupMenuButton<String>(
                 onSelected: (value) {
                   if (value == 'add_to_playlist') {
-                    _showAddToPlaylistDialog(context, song);
+                    final auth = Provider.of<AuthProvider>(context, listen: false);
+                    if(auth.isAuthenticated){
+                      _showAddToPlaylistDialog(context, song);
+                    }else{
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('login to your account to add songs to playlists.')),
+                      );
+                    }
                   }
                 },
                 itemBuilder: (context) => [

@@ -7,6 +7,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import '../Auth.dart';
 import '../testClient.dart';
+import 'comment_view.dart';
 
 class ServerSongView extends StatefulWidget {
   final song;
@@ -20,6 +21,8 @@ class _ServerSongViewState extends State<ServerSongView> {
   List<Map<String, dynamic>> songs = [];
   bool isLoading = true;
   String? error;
+  int newRating=0;
+  bool rated=false;
 
   @override
   void initState() {
@@ -90,10 +93,17 @@ class _ServerSongViewState extends State<ServerSongView> {
     }
   }
 
+  void rateSong(int rating) async {
+    if(rated){
+    setState(() {
+      newRating = rating;
+    });}}
   @override
   Widget build(BuildContext context) {
     final title = widget.song['title'] ?? 'Unknown Title';
     final price = widget.song['price'] != null ? widget.song['price'].toString() : 'N/A';
+    final rating=widget.song['rating']??0;
+    final ratingCount=widget.song['rating_count'];
     final coverBase64 = widget.song['cover_base64'];
     final coverBytes = decodeBase64ImageSafely(coverBase64);
     final client = Provider.of<CommandClient>(context, listen: false);
@@ -139,8 +149,58 @@ class _ServerSongViewState extends State<ServerSongView> {
                 style: const TextStyle(fontSize: 22),
               ),
               SizedBox(height: 30,),
+              Text(
+                "rating: $rating / 5 ($ratingCount)",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
+              ),
+              SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(5, (index) {
+                  int starIndex = index + 1;
+                  return IconButton(
+                    icon: Icon(
+                      Icons.star,
+                      color: starIndex <= newRating ? Colors.amber : Colors.grey[400],
+                    ),
+                    onPressed: () async {
+                      if(!auth.isAuthenticated){
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('login to your account to rate.')),
+                        );
+                        return;
+                      }
+                      if(!rated){
+                        rated=true;
+                        rateSong(starIndex);
+                        final response= await client.sendCommand("rate", extraData: {"rating":newRating, "songId": widget.song['id']});
+                      if(response['status-code']==200){
+                        final res=await client.sendCommand("getRating", extraData: {"songId":widget.song['id']});
+                        setState(() {
+                          widget.song['rating'] = res['rate']['rating'];
+                          widget.song['rating_count'] = res['rate']['ratingCount'];
+                        });
+                      }}
+
+
+                    },
+                  );
+                }),
+              ),
+              SizedBox(height: 8,),
               ElevatedButton(
                 onPressed: () async {
+                  if(!auth.isAuthenticated){
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('login to your account to download songs.')),
+                    );
+                    return;
+                  }
                   double parsed=double.parse(price);
                   if(auth.isVip??false){
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -180,6 +240,24 @@ class _ServerSongViewState extends State<ServerSongView> {
                       borderRadius: BorderRadius.circular(10)),
                 ),
                 child: Text('DOWNLOAD', style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.w700)),
+              ),
+              SizedBox(height: 10,),
+              ElevatedButton(onPressed:(){
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => Comments(songId: widget.song['id']),
+                  ),
+                );
+                 },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.secondary,
+                  padding: EdgeInsets.symmetric(
+                      horizontal: 80, vertical: 15),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10)),
+                ),
+                child: Text('COMMENTS', style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.w700)),
               ),
             ],
           ),

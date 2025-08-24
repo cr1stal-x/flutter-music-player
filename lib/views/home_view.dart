@@ -132,6 +132,12 @@ class HomeView extends StatelessWidget {
                 backgroundColor: Theme.of(context).colorScheme.secondary,
               ),
               onPressed: () {
+                final auth = Provider.of<AuthProvider>(context, listen: false);
+                if(!auth.isAuthenticated){
+                ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('login to your account to see downloaded songs.')),
+                  );
+                return;}
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (_) => DownloadedSongsView()),
@@ -157,6 +163,12 @@ class HomeView extends StatelessWidget {
                 backgroundColor: Theme.of(context).colorScheme.secondary,
               ),
               onPressed: () {
+                  final auth = Provider.of<AuthProvider>(context, listen: false);
+                  if(!auth.isAuthenticated){
+                  ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('login to your account to make playlists.')),
+                  );
+                  return;}
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => ALLPlaylistView()),
