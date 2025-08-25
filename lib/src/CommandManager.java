@@ -64,18 +64,27 @@ public class CommandManager {
                     sendError(cl, "Invalid username");
                 } break;
             case "AddSong":
-                extraData=command.get("extraData");
+                extraData = command.get("extraData");
                 if(extraData instanceof Map){
-                    String username=command.get("username");
-                    int userId=SQLManager.getAccByUsername(username);
-                    String playlistName = (String)((Map)extraData).get("playlistName");
-                    double songId=(double)((Map)extraData).get("songId");
-                    int playlistId=SQLManager.getPlaylistId(userId,playlistName);
-                    addSong(cl,playlistId,songId);
+                    Map<?, ?> dataMap = (Map<?, ?>) extraData;
+                    Object playlistNameObj = dataMap.get("playlistName");
+                    Object songIdObj = dataMap.get("songId");
+
+                    if(playlistNameObj != null && songIdObj != null){
+                        String username = command.get("username");
+                        int userId = SQLManager.getAccByUsername(username);
+                        String playlistName = playlistNameObj.toString();
+                        int playlistId = SQLManager.getPlaylistId(userId, playlistName);
+                        double songId = ((Number) songIdObj).doubleValue();
+                        addSong(cl, playlistId, songId);
+                    } else {
+                        sendError(cl, "Missing playlistName or songId");
+                    }
                 } else {
-                    sendError(cl, "Invalid username");
+                    sendError(cl, "Invalid extraData format");
                 }
                 break;
+
             case "DeletePlaylist": deletePlaylist(cl, command.get("playlistName")); break;
             case "GetPlaylists":getPlaylists(cl);break;
             case "GetPlaylistSongs":
