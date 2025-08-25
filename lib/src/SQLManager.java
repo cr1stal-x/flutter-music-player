@@ -317,6 +317,7 @@ public class SQLManager {
         }
         return songs;
     }
+
     public static int getPlaylistId(int userId, String title) {
         String query = "SELECT id FROM playlists WHERE user_id = ? AND title = ?";
         try (Connection conn = SQLConnection.connect();
@@ -352,6 +353,24 @@ public class SQLManager {
             e.printStackTrace();
         }
         return playlists;
+    }
+
+    public static boolean deleteSong(int playlistId, double songId) {
+        String sql = "DELETE FROM playlist_localsongs WHERE playlist_id = ? AND song_id = ?";
+
+        try (Connection conn = SQLConnection.connect();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setDouble(2, songId);
+            ps.setInt(1, playlistId);
+
+            int rowsAffected = ps.executeUpdate();
+            return rowsAffected > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     public static List<Map<String, Object>> getDownloadedSongs(int userId) {

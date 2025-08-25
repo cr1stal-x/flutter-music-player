@@ -89,7 +89,19 @@ public class CommandManager {
                     sendError(cl, "Invalid username");
                 }
                 break;
-
+            case "DeleteSong":
+                extraData=command.get("extraData");
+                if(extraData instanceof Map){
+                    String username=command.get("username");
+                    int userId=SQLManager.getAccByUsername(username);
+                    String playlistName = (String)((Map)extraData).get("playlistName");
+                    double songId=(double)((Map)extraData).get("songId");
+                    int playlistId=SQLManager.getPlaylistId(userId,playlistName);
+                    deleteSong(cl,playlistId,songId);
+                } else {
+                    sendError(cl, "Invalid username");
+                }
+                break;
             case "GetDownloadedSongs": getDownloadSongs(cl); break;
             case "GetAccountInfo": getAccountInfo(cl); break;
             case "rate": extraData=command.get("extraData");
@@ -174,6 +186,16 @@ public class CommandManager {
                 break;
             default: sendError(cl, "Unknown method: " + method); break;
         }
+    }
+
+    private void deleteSong(ClientHandler cl, int playlistId, double songId) {
+        boolean deleted = SQLManager.deleteSong(playlistId, songId);
+        Map<String, Object> result = new HashMap<>();
+        result.put("status-code", deleted ? 200 : 500);
+        result.put("method", "DeleteSong");
+        result.put("message", deleted ? "Song deleted" : "Failed to delete");
+        System.out.println(result);
+        cl.sendJson(gson.toJson(result));
     }
 
     private void updateComment(double commentId, String newContent,ClientHandler cl) {

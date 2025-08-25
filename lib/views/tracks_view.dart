@@ -29,18 +29,54 @@ class TracksScreen extends StatelessWidget {
   const TracksScreen({super.key});
 
 
-  void _showAddToPlaylistDialog(BuildContext context, SongModel song) {
-    final TextEditingController controller = TextEditingController();
-    showDialog(
+  void _showAddToPlaylistDialog(BuildContext context, SongModel song) async {
+    final client = Provider.of<CommandClient>(context, listen: false);
+    final auth = Provider.of<AuthProvider>(context, listen: false);
+
+    final playlistsResponse = await client.sendCommand(
+      "GetPlaylists",
+    );
+
+    List<Map<String, dynamic>> playlists = [];
+    if (playlistsResponse["status-code"] == 200) {
+      playlists = List<Map<String, dynamic>>.from(playlistsResponse["playlists"]);
+    }
+
+    if (playlists.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("You don't have any playlists yet.")),
+      );
+      return;
+    }
+
+    String? selectedPlaylist;
+
+    return showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Enter Playlist Name'),
-          content: TextField(
-            controller: controller,
-            decoration: const InputDecoration(
-              hintText: 'Playlist name',
-            ),
+          title: const Text('Choose a Playlist'),
+          content: StatefulBuilder(
+            builder: (context, setState) {
+              return SizedBox(
+                width: double.minPositive,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: playlists.map((playlist) {
+                    return RadioListTile<String>(
+                      title: Text(playlist['title']),
+                      value: playlist['title'],
+                      groupValue: selectedPlaylist,
+                      onChanged: (value) {
+                        setState(() {
+                          selectedPlaylist = value;
+                        });
+                      },
+                    );
+                  }).toList(),
+                ),
+              );
+            },
           ),
           actions: [
             TextButton(
@@ -49,25 +85,29 @@ class TracksScreen extends StatelessWidget {
             ),
             TextButton(
               onPressed: () async {
-                String playlistName = controller.text.trim();
-                if (playlistName.isNotEmpty) {
-                  final client = Provider.of<CommandClient>(context, listen: false);
-                  final auth = Provider.of<AuthProvider>(context, listen: false);
-                  final response=await client.sendCommand("AddSong",username:auth.username??"NO" , extraData: {"playlistName":playlistName, "songId":song.id});
-                  if(response["status-code"]==200){
+                if (selectedPlaylist != null) {
+                  final response = await client.sendCommand(
+                    "AddSong",
+                    username: auth.username ?? "NO",
+                    extraData: {
+                      "playlistName": selectedPlaylist,
+                      "songId": song.id,
+                    },
+                  );
+
+                  if (response["status-code"] == 200) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text("Added ${song.title} to playlist $playlistName")),
+                      SnackBar(content: Text("Added ${song.title} to $selectedPlaylist")),
                     );
-                  }else if(response["status-code"]==404){
+                  } else if (response["status-code"] == 404) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text("Playlist doesn't exists.")),
+                      const SnackBar(content: Text("Playlist doesn't exist.")),
                     );
-                  }else{
+                  } else {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text("error ${response["message"]}")),
+                      SnackBar(content: Text("Error: ${response["message"]}")),
                     );
                   }
-
                 }
                 Navigator.pop(context);
               },
@@ -78,6 +118,7 @@ class TracksScreen extends StatelessWidget {
       },
     );
   }
+
 
   @override
   Widget build(BuildContext context) {

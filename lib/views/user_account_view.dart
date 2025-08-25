@@ -123,7 +123,7 @@ class _UserAccount extends State<UserAccount> {
                         ),
                       ),
                       Text(
-                        "${authProvider.username ?? 'User'}",
+                        authProvider.username ?? 'User',
                         textAlign: TextAlign.center,
                         style: TextStyle(fontSize: 18),
                       ),
@@ -267,9 +267,9 @@ class _UserAccount extends State<UserAccount> {
                                             String newValue = controller.text.trim();
                                             if(newValue.isNotEmpty) {
                                               try {
-                                                int parsedInt = int.parse(newValue);
+                                                double parsed=double.parse(newValue);
                                                 Navigator.pop(context);
-                                                goToPaymentView(parsedInt);
+                                                goToPaymentView(parsed);
                                               } on FormatException catch (e) {
                                                 print("Error parsing string: $e");
                                               }
@@ -454,7 +454,7 @@ class _UserAccount extends State<UserAccount> {
                   backgroundColor: Theme.of(context).colorScheme.secondary,
                   foregroundColor: Colors.white,
                 ),
-                child: const Text("e=Email"),
+                child: const Text("Email"),
               ),
               const SizedBox(width: 20),
               ElevatedButton(
@@ -541,7 +541,7 @@ class _UserAccount extends State<UserAccount> {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text(
-                                "Password must be at least 8 chars, include upper, lower, number, and special char.",
+                                "Password must be at least 8 chars, include upper, lower, number.",
                               ),
                             ),
                           );
@@ -636,7 +636,7 @@ class _UserAccount extends State<UserAccount> {
     );
   }
 
-  void goToPaymentView(int pay) {
+  void goToPaymentView(double pay) {
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -645,7 +645,7 @@ class _UserAccount extends State<UserAccount> {
       ),
     );
   }
-  Future<void> activateVip(bool value, int amount) async {
+  Future<void> activateVip(bool value, double amount) async {
     final client = Provider.of<CommandClient>(context, listen: false);
     final auth = Provider.of<AuthProvider>(context, listen: false);
     if((auth.credit??0)<amount){

@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:musix/Auth.dart';
 import 'package:musix/views/song_view.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 import 'package:provider/provider.dart';
 
+import '../testClient.dart';
 import '../view_models/song_view_model.dart';
 
 class SongsByIdsView extends StatefulWidget {
   final List<int> songIds;
+  final playlistName;
 
-  const SongsByIdsView({super.key, required this.songIds});
+  const SongsByIdsView({super.key, required this.songIds,required this.playlistName});
 
   @override
   State<SongsByIdsView> createState() => _SongsByIdsViewState();
@@ -76,6 +79,29 @@ class _SongsByIdsViewState extends State<SongsByIdsView> {
             ),
             title: Text(song.title),
             subtitle: Text(song.artist ?? "Unknown Artist"),
+            trailing: PopupMenuButton<String>(
+              onSelected: (value) async {
+                if (value == 'delete') {
+                  final client = Provider.of<CommandClient>(context, listen: false);
+                  final auth=Provider.of<AuthProvider>(context, listen: false);
+                  final response=await client.sendCommand("DeleteSong",username: auth.username??"",extraData: {"songId":song.id, "playlistName": widget.playlistName});
+                  if(response["status-code"]==200){
+                    setState(() {
+                      filteredSongs.removeAt(index);
+                    });
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('${song.title} deleted from playlist')),
+                    );
+                  }
+                }
+              },
+              itemBuilder: (context) => [
+                const PopupMenuItem(
+                  value: 'delete',
+                  child: Text("Delete from playlist"),
+                ),
+              ],
+            ),
           );
         },
       ),

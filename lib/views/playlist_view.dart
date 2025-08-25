@@ -150,7 +150,7 @@ class _ALLPlaylistViewState extends State<ALLPlaylistView> {
                     if (response["status-code"] == 200) {
                       songIdsDynamic = response["songs"];
                       songIds = songIdsDynamic.whereType<int>().toList();
-                      Navigator.push(context, MaterialPageRoute(builder: (context)=>SongsByIdsView(songIds: songIds)));}}
+                      Navigator.push(context, MaterialPageRoute(builder: (context)=>SongsByIdsView(songIds: songIds, playlistName: playlist['title'],)));}}
 
                   },
                 ),

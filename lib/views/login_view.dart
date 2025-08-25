@@ -19,7 +19,7 @@ class _LoginState extends State<Login> {
   final TextEditingController _password = TextEditingController();
   String? _error;
   String? _welcome;
-
+  bool isob=false;
 
   void _login() async {
     final username = _username.text.trim();
@@ -63,9 +63,9 @@ class _LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold( //totalPage
-        backgroundColor: Theme.of(context).colorScheme.surface, //lightPink
-        appBar: AppBar( //topOfPage
+  return Scaffold(
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        appBar: AppBar(
           centerTitle: true,
           title:
            Text(
@@ -85,7 +85,6 @@ class _LoginState extends State<Login> {
           Column(
             mainAxisAlignment: MainAxisAlignment.center, //center
             children: [
-              //welcome box
                Text(
                 "Welcome!",
                 style: TextStyle(
@@ -96,8 +95,7 @@ class _LoginState extends State<Login> {
               ),
               const SizedBox(height: 20),
 
-              //username box
-              Material( //art effects of widget
+              Material(
                 elevation: 4,  //shadow
                 borderRadius: BorderRadius.circular(16),
                 child: TextField(
@@ -112,21 +110,29 @@ class _LoginState extends State<Login> {
                 ),
               ),
               const SizedBox(height: 24),
-
               //password box
               Material(
-                elevation: 4,  //shadow
+        elevation: 4,  //shadow
                 borderRadius: BorderRadius.circular(16),
                 child: TextField(
-                  decoration: InputDecoration(
-                    labelText: 'Password:',
-                    prefixIcon: Icon(Icons.lock),
-                    border: OutlineInputBorder(
+                    obscureText: !isob,
+                    decoration: InputDecoration(
+                      labelText: 'Password:',
+                      border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
-                  ),
+                      prefixIcon: IconButton(
+                        onPressed: () {
+                          setState(() {
+                            isob = !isob;
+                          });
+                        },
+                        icon: Icon(
+                          isob ? Icons.visibility : Icons.visibility_off,
+                        ),
+                      ),
+                    ),
                   controller: _password,
-                  obscureText: true, //hide the letters
                 ),
               ),
               const SizedBox(height: 24),

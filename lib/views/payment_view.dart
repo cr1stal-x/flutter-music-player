@@ -5,13 +5,12 @@ import 'package:provider/provider.dart';
 import '../view_models/payment_view_model.dart';
 import '../testClient.dart';
 class PaymentView extends StatelessWidget {
-  final int pay;
+  final double pay;
   const PaymentView({super.key, required this.pay});
 
 
   @override
   Widget build(BuildContext context) {
-    CommandClient client = context.read<CommandClient>();
     AuthProvider authProvider=context.read<AuthProvider>();
     final PaymentViewModel vm = PaymentViewModel(userPassword: authProvider.password ?? '1234');
     return ChangeNotifierProvider.value(

@@ -26,7 +26,6 @@ class _CommentsState extends State<Comments> {
     super.dispose();
   }
   Future<void> updateComment(int commentId, String newContent) async {
-    final auth = Provider.of<AuthProvider>(context, listen: false);
     final client = Provider.of<CommandClient>(context, listen: false);
 
     final response = await client.sendCommand(
@@ -145,7 +144,6 @@ class _CommentsState extends State<Comments> {
       ),
       body: Column(
         children: [
-          // Dropdown to sort
           Padding(
             padding: const EdgeInsets.all(12.0),
             child: DropdownButtonFormField<String>(
@@ -273,7 +271,7 @@ class _CommentsState extends State<Comments> {
                         ],
                       ),
                       const SizedBox(height: 4),
-                      // Comment content
+
                       Text(
                         comment["content"] ?? "",
                         style: const TextStyle(fontSize: 14),
