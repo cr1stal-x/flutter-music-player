@@ -120,13 +120,13 @@ The project supports local music playback, online music from a server, user auth
     - Search bar and sorting options
     - Bottom navigation for Home and Music Shop
     - “Favorites/Liked” list and a quick access to the current song
-      ![Alt text]()
+      <img src="screenshots/local_songs_list.jpg" alt="App screenshot" width="600" />
 - Song Details
     - Album art, title, artist
     - Progress bar/Seekbar with time elapsed and remaining
     - Playback controls: play/pause, next, previous, shuffle, repeat
     - Option to add to favorites or create a “Lyrics” entry
-      ![Alt text](screenshots/local_songs_list.jpg)
+      ![Alt text]()
       ![Alt text](screenshots/music_player_screen.jpg)
 
 
