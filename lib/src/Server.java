@@ -10,7 +10,7 @@ public class Server {
         int port = 5000;
         ExecutorService pool = Executors.newFixedThreadPool(10);
             try (Connection conn = SQLConnection.connect()) {
-                ScriptRunner.runScript(conn, "C:\\Users\\user\\musix\\lib\\resources\\init.sql");
+                ScriptRunner.runScript(conn, "/Users/sara/musix/lib/resources/init.sql");
                 System.out.println("Database and table initialized.");
                 SQLManager.loadSongs("E:\\ServerSongs\\");
             } catch (Exception e) {
