@@ -9,347 +9,602 @@ import com.google.gson.Gson;
 public class CommandManager {
     private final Gson gson = new Gson();
 
-    public void getCommand(Map<String, Object> command, ClientHandler cl) throws IOException {
-        String method = (String) command.get("method");
-        Object extraData;
+    public void getCommand(Map<String, String> command, ClientHandler cl) throws IOException {
+        String method = command.get("method");
         switch (method) {
             case "LogOut": logOut(cl); break;
-            case "SignUp":
-                signUp((String) command.get("username"),
-                        (String) command.get("password"),
-                        (String) command.get("email"), cl);
-                break;
+            case "SignUp": signUp(command.get("username"), command.get("password"),command.get("email"), cl); break;
             case "Update": update(cl, command.get("extraData")); break;
-            case "login":
-                login((String) command.get("username"), (String) command.get("password"), cl); break;
+            case "login": login(command.get("username"), command.get("password"), cl);break;
             case "Get": get(cl); break;
             case "Delete": delete(cl); break;
             case "DownloadSong":
                 try {
-                    extraData = command.get("extraData");
-                    if(extraData instanceof Map){
-                        Object songIdObj = ((Map) extraData).get("songId");
-                        int songId;
-                        if(songIdObj instanceof Number) songId = ((Number) songIdObj).intValue();
-                        else songId = Integer.parseInt(songIdObj.toString());
-                        downloadSong(cl, songId);
-                    } else sendError(cl, "Invalid songId format");
-                } catch (Exception e) {
+
+                    Object dataObj = command.get("extraData");
+                    Map<String, Object> data = (Map<String, Object>) dataObj;
+                    Object songIdObj=data.get("songId");
+                    int songId;
+                    if (songIdObj instanceof Number) {
+                        songId = ((Number) songIdObj).intValue();
+                    } else if (songIdObj instanceof String) {
+                        songId = Integer.parseInt((String) songIdObj);
+                    } else {
+                        sendError(cl, "Invalid songId type");
+                        return;
+                    }
+                    downloadSong(cl, songId);
+                } catch (NumberFormatException e) {
                     sendError(cl, "Invalid songId format");
                 }
                 break;
             case "GetServerSongs": getServerSongs(cl); break;
-            case "ChatWithAdmin":
-                extraData = command.get("extraData");
+            case "getCategories": getCategories(cl); break;
+            case "ChatWithAdmin": Object extraData = command.get("extraData");
                 if(extraData instanceof Map){
                     String message = (String)((Map)extraData).get("message");
                     chatWithAdmin(cl, message);
-                } else sendError(cl, "Invalid chat message");
+                } else {
+                    sendError(cl, "Invalid chat message");
+                }
                 break;
-            case "ForgetPassword":
-                extraData = command.get("extraData");
+            case "ForgetPassword": extraData=command.get("extraData");
                 if(extraData instanceof Map){
                     String username = (String)((Map)extraData).get("username");
                     forgetPassword(cl, username);
-                } else sendError(cl, "Invalid username");
-                break;
-            case "NewPlaylist":
-                extraData = command.get("extraData");
+                } else {
+                    sendError(cl, "Invalid username");
+                } break;
+
+            case "NewPlaylist":extraData=command.get("extraData");
                 if(extraData instanceof Map){
                     String playlistName = (String)((Map)extraData).get("playlistName");
-                    newPlaylist(cl, playlistName);
-                } else sendError(cl, "Invalid playlist data");
-                break;
+                    newPlaylist(cl,playlistName);
+                } else {
+                    sendError(cl, "Invalid username");
+                } break;
             case "AddSong":
                 extraData = command.get("extraData");
                 if(extraData instanceof Map){
-                    String username = (String) command.get("username");
-                    int userId = SQLManager.getAccByUsername(username);
-                    String playlistName = (String)((Map) extraData).get("playlistName");
-                    double songId = ((Number)((Map) extraData).get("songId")).doubleValue();
-                    int playlistId = SQLManager.getPlaylistId(userId, playlistName);
-                    addSong(cl, playlistId, songId);
-                } else sendError(cl, "Invalid song data");
+                    Map<?, ?> dataMap = (Map<?, ?>) extraData;
+                    Object playlistNameObj = dataMap.get("playlistName");
+                    Object songIdObj = dataMap.get("songId");
+
+                    if(playlistNameObj != null && songIdObj != null){
+                        String username = command.get("username");
+                        int userId = SQLManager.getAccByUsername(username);
+                        String playlistName = playlistNameObj.toString();
+                        int playlistId = SQLManager.getPlaylistId(userId, playlistName);
+                        double songId = ((Number) songIdObj).doubleValue();
+                        addSong(cl, playlistId, songId);
+                    } else {
+                        sendError(cl, "Missing playlistName or songId");
+                    }
+                } else {
+                    sendError(cl, "Invalid extraData format");
+                }
                 break;
-            case "DeletePlaylist": deletePlaylist(cl, (String) command.get("playlistName")); break;
-            case "GetPlaylists": getPlaylists(cl); break;
+
+            case "DeletePlaylist": deletePlaylist(cl, command.get("playlistName")); break;
+            case "GetPlaylists":getPlaylists(cl);break;
             case "GetPlaylistSongs":
                 extraData = command.get("extraData");
                 if(extraData instanceof Map){
-                    String username = (String) command.get("username");
-                    int userId = SQLManager.getAccByUsername(username);
-                    String playlistName = (String)((Map) extraData).get("playlistName");
-                    getPlaylistSongs(cl, playlistName, userId);
-                } else sendError(cl, "Invalid playlist request");
+                    Map<?, ?> dataMap = (Map<?, ?>) extraData;
+                    Object playlistNameObj = dataMap.get("playlistName");
+
+                    if(playlistNameObj != null){
+                        String username = command.get("username");
+                        int userId = SQLManager.getAccByUsername(username);
+                        String playlistName = playlistNameObj.toString();
+                        getPlaylistSongs(cl, playlistName, userId);
+                    } else {
+                        sendError(cl, "Missing playlistName");
+                    }
+                } else {
+                    sendError(cl, "Invalid extraData format");
+                }
+                break;
+
+            case "DeleteSong":
+                extraData=command.get("extraData");
+                if(extraData instanceof Map){
+                    String username=command.get("username");
+                    int userId=SQLManager.getAccByUsername(username);
+                    String playlistName = (String)((Map)extraData).get("playlistName");
+                    double songId=(double)((Map)extraData).get("songId");
+                    int playlistId=SQLManager.getPlaylistId(userId,playlistName);
+                    deleteSong(cl,playlistId,songId);
+                } else {
+                    sendError(cl, "Invalid username");
+                }
                 break;
             case "GetDownloadedSongs": getDownloadSongs(cl); break;
             case "GetAccountInfo": getAccountInfo(cl); break;
+            case "rate": extraData=command.get("extraData");
+                if(extraData instanceof Map){
+                    double songId = (double)((Map)extraData).get("songId");
+                    double rating=(double) ((Map)extraData).get("rating");
+                    rate(cl, rating, songId);
+                } else {
+                    sendError(cl, "Invalid username");
+                }
+                break;
+            case "getRating":
+                extraData=command.get("extraData");
+                if(extraData instanceof Map){
+                    double songId = (double)((Map)extraData).get("songId");
+                    getRating(cl,songId);
+                } else {
+                    sendError(cl, "Invalid");
+                }
+                break;
+            case "getComments":
+                extraData = command.get("extraData");
+                if(extraData instanceof Map){
+                    Map<?, ?> dataMap = (Map<?, ?>) extraData;
+                    Object songIdObj = dataMap.get("songId");
+                    if(songIdObj != null){
+                        double songId = ((Number) songIdObj).doubleValue();
+                        getComments(cl, songId);
+                    } else {
+                        sendError(cl, "Missing songId");
+                    }
+                } else {
+                    sendError(cl, "Invalid extraData format");
+                }
+                break;
 
-            // comment & rating
-            case "AddComment":
+            case "addComment":
                 extraData = command.get("extraData");
                 if(extraData instanceof Map){
-                    int songId = ((Number)((Map) extraData).get("songId")).intValue();
-                    String comment = (String)((Map) extraData).get("comment");
-                    addComment(cl, songId, comment);
-                } else sendError(cl, "Invalid comment data");
-                break;
-            case "GetComments":
-                extraData = command.get("extraData");
-                if(extraData instanceof Map){
-                    int songId = ((Number)((Map) extraData).get("songId")).intValue();
-                    getComments(cl, songId);
-                } else sendError(cl, "Invalid comment request data");
-                break;
-            case "RateSong":
-                extraData = command.get("extraData");
-                if(extraData instanceof Map){
-                    int songId = ((Number)((Map) extraData).get("songId")).intValue();
-                    int rating = ((Number)((Map) extraData).get("rating")).intValue();
-                    rateSong(cl, songId, rating);
-                } else sendError(cl, "Invalid rating data");
+                    Map<?, ?> dataMap = (Map<?, ?>) extraData;
+                    Object songIdObj = dataMap.get("songId");
+                    Object commentObj = dataMap.get("comment");
+
+                    if(songIdObj != null && commentObj != null){
+                        double songId = ((Number) songIdObj).doubleValue();
+                        String username = command.get("username");
+                        String text = commentObj.toString();
+                        addComment(cl, songId, username, text);
+                    } else {
+                        sendError(cl, "Missing songId or comment");
+                    }
+                } else {
+                    sendError(cl, "Invalid extraData format");
+                }
                 break;
 
+
+            case "likeComment":
+                extraData = command.get("extraData");
+                if (extraData instanceof Map) {
+                    double commentId = (double) ((Map) extraData).get("commentId");
+                    likeComment(cl, commentId);
+                } else {
+                    sendError(cl, "Invalid");
+                }
+                break;
+
+            case "dislikeComment":
+                extraData = command.get("extraData");
+                if (extraData instanceof Map) {
+                    double commentId = (double) ((Map) extraData).get("commentId");
+                    dislikeComment(cl, commentId);
+                } else {
+                    sendError(cl, "Invalid");
+                }
+                break;
+            case "updateComment":
+                extraData = command.get("extraData");
+                if (extraData instanceof Map) {
+                    double commentId = (double) ((Map) extraData).get("commentId");
+                    String newContent=(String)((Map) extraData).get("newContent");
+                    updateComment(commentId,newContent,cl);
+                } else {
+                    sendError(cl, "Invalid");
+                }
+                break;
+            case "deleteComment":
+                extraData = command.get("extraData");
+                if (extraData instanceof Map) {
+                    double commentId = (double) ((Map) extraData).get("commentId");
+                    String username=command.get("username");
+                    int id=SQLManager.getAccByUsername(username);
+                    deleteComment(cl,commentId,id);
+                } else {
+                    sendError(cl, "Invalid");
+                }
+                break;
             default: sendError(cl, "Unknown method: " + method); break;
         }
     }
 
-    private void sendError(ClientHandler cl, String message) {
-        Map<String,Object> res = new HashMap<>();
-        res.put("status-code", 400);
-        res.put("method", "error");
-        res.put("message", message);
-        cl.sendJson(gson.toJson(res));
+    private void deleteSong(ClientHandler cl, int playlistId, double songId) {
+        boolean deleted = SQLManager.deleteSong(playlistId, songId);
+        Map<String, Object> result = new HashMap<>();
+        result.put("status-code", deleted ? 200 : 500);
+        result.put("method", "DeleteSong");
+        result.put("message", deleted ? "Song deleted" : "Failed to delete");
+        System.out.println(result);
+        cl.sendJson(gson.toJson(result));
     }
 
-    private void logOut(ClientHandler cl) {
-        cl.id = 0;
-        Map<String,Object> res = new HashMap<>();
-        res.put("status-code", 200);
-        res.put("method", "logOut");
-        cl.sendJson(gson.toJson(res));
-    }
-
-    public void signUp(String username, String password, String email, ClientHandler cl) {
-        int status = SQLManager.signUp(username, password, email);
-        Map<String,Object> res = new HashMap<>();
-        if(status>0){
-            cl.id = status;
-            res.put("status-code", 200);
-            res.put("method","signUp");
-            res.put("message","authenticated");
-        } else if(status==-1){
-            res.put("status-code",400);
-            res.put("method","signUp");
-            res.put("message","user exists");
-        } else{
-            res.put("status-code",500);
-            res.put("method","signUp");
-            res.put("message","internal server error");
+    private void updateComment(double commentId, String newContent,ClientHandler cl) {
+        boolean success = SQLManager.updateCommentContent((int) commentId,cl.id,newContent);
+        Map<String, Object> result = new HashMap<>();
+        result.put("method", "updateComment");
+        if (success) {
+            result.put("status-code", 200);
+            result.put("message", "updated");
+        } else {
+            result.put("status-code", 500);
+            result.put("message", "Failed");
         }
-        cl.sendJson(gson.toJson(res));
+        cl.sendJson(gson.toJson(result));
     }
 
-    public void login(String username, String password, ClientHandler cl){
-        int userId = SQLManager.login(username, password);
-        Map<String,Object> res = new HashMap<>();
-        res.put("method","login");
+    private void getCategories(ClientHandler cl) {
+        List<String> categ=SQLManager.getCategories();
+        Map<String, Object> result = new HashMap<>();
+        result.put("method", "getCategories");
+        if (!categ.isEmpty()) {
+            result.put("categories",categ);
+            result.put("status-code", 200);
+            result.put("message", "successfully");
+        } else {
+            result.put("status-code", 500);
+            result.put("message", "Failed");
+        }
+        cl.sendJson(gson.toJson(result));
+    }
 
-        if(userId>0){
+    private void addComment(ClientHandler cl, double songId, String username, String text) {
+        int userId = SQLManager.getAccByUsername(username);
+        boolean success = SQLManager.addComment((int)songId, userId, text);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("method", "addComment");
+        if (success) {
+            result.put("status-code", 200);
+            result.put("message", "Comment added successfully");
+        } else {
+            result.put("status-code", 500);
+            result.put("message", "Failed to add comment");
+        }
+        cl.sendJson(gson.toJson(result));
+    }
+
+    private void likeComment(ClientHandler cl, double commentId) {
+        boolean success = SQLManager.likeComment((int) commentId);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("method", "likeComment");
+        if (success) {
+            result.put("status-code", 200);
+            result.put("message", "Comment liked");
+        } else {
+            result.put("status-code", 500);
+            result.put("message", "Failed to like comment");
+        }
+        cl.sendJson(gson.toJson(result));
+    }
+
+    private void dislikeComment(ClientHandler cl, double commentId) {
+        boolean success = SQLManager.dislikeComment((int) commentId);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("method", "dislikeComment");
+        if (success) {
+            result.put("status-code", 200);
+            result.put("message", "Comment disliked");
+        } else {
+            result.put("status-code", 500);
+            result.put("message", "Failed to dislike comment");
+        }
+        cl.sendJson(gson.toJson(result));
+    }
+
+    private void getComments(ClientHandler cl, double songId) {
+        List<Map<String, Object>>comments = SQLManager.getComments((int)songId); // implement this helper
+        Map<String, Object> result = new HashMap<>();
+        result.put("method", "getComments");
+        result.put("status-code", 200);
+        result.put("comments", comments);
+        cl.sendJson(gson.toJson(result));
+    }
+
+    private void getPlaylistSongs(ClientHandler cl,String playlistName, int userId) {
+        List<Integer> songs = SQLManager.getPlaylistSongs(userId,playlistName);
+        Map<String, Object> result = new HashMap<>();
+        result.put("status-code", 200);
+        result.put("method", "getPlaylistSongs");
+        result.put("songs", songs);
+        cl.sendJson(gson.toJson(result));
+    }
+
+    private void getPlaylists(ClientHandler cl) {
+        List<Map<String, Object>> playlists = SQLManager.getPlaylists(cl.id);
+        Map<String, Object> result = new HashMap<>();
+        result.put("status-code", 200);
+        result.put("method", "getPlaylists");
+        result.put("playlists", playlists);
+        cl.sendJson(gson.toJson(result));
+    }
+
+    private void sendError(ClientHandler cl, String message)  {
+        Map<String, Object> result = new HashMap<>();
+        result.put("status-code", 400);
+        result.put("method", "error");
+        result.put("message", message);
+        cl.sendJson(gson.toJson(result));
+    }
+
+    public void logOut(ClientHandler cl)  {
+        cl.id = 0;
+        Map<String, Object> result = new HashMap<>();
+        result.put("status-code", 200);
+        result.put("method", "logOut");
+        cl.sendJson(gson.toJson(result));
+    }
+
+    public void signUp(String userName, String password, String email, ClientHandler cl)  {
+        int status = SQLManager.signUp(userName, password, email);
+        Map<String, Object> result = new HashMap<>();
+        if (status > 0) {
+            cl.id = status;
+            result.put("status-code", 200);
+            result.put("method", "signUp");
+            result.put("message", "authenticated");
+        } else if (status == -1) {
+            result.put("status-code", 400);
+            result.put("method", "signUp");
+            result.put("message", "user exists");
+        } else {
+            result.put("status-code", 500);
+            result.put("method", "signUp");
+            result.put("message", "internal server error");
+        }
+        cl.sendJson(gson.toJson(result));
+    }
+
+    public void login(String userInput, String password, ClientHandler cl){
+        int userId = SQLManager.login(userInput, password);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("method", "login");
+
+        if (userId > 0) {
             cl.id = userId;
             double credit = SQLManager.getCredit(userId);
             boolean isVip = SQLManager.getIsVip(userId);
-            Map<String,Object> accountInfo = SQLManager.getAccountInfo(userId);
-            res.put("status-code",200);
-            res.put("user_id",userId);
-            res.put("email",accountInfo.get("email"));
-            res.put("credit",credit);
-            res.put("isVip",isVip);
-            res.put("profile_cover",accountInfo.get("profile_cover"));
+            Map<String,Object>accountInfo=SQLManager.getAccountInfo(userId);
+            System.out.println(accountInfo);
+            String email= (String) accountInfo.get("email");
+            String profileCover=(String) accountInfo.get("profile_cover");
+
+            result.put("status-code", 200);
+            result.put("user_id", userId);
+            result.put("email",email);
+            result.put("credit", credit);
+            result.put("isVip", isVip);
+            result.put("profile_cover", profileCover);
+            System.out.println(result);
         } else {
-            res.put("status-code",401);
-            res.put("message","Invalid username/email or password");
+            result.put("status-code", 401);
+            result.put("message", "Invalid username/email or password");
         }
-        cl.sendJson(gson.toJson(res));
+
+        cl.sendJson(gson.toJson(result));
     }
 
-    public void update(ClientHandler cl, Object extraData){
-        Map<String,Object> res = new HashMap<>();
-        res.put("method","update");
-        if(cl.id<=0){ res.put("status-code",401); res.put("message","not authenticated"); cl.sendJson(gson.toJson(res)); return;}
-        if(!(extraData instanceof Map)){ res.put("status-code",400); res.put("message","invalid format"); cl.sendJson(gson.toJson(res)); return;}
-        int status = SQLManager.updateUser(cl.id,(Map<String,Object>)extraData);
-        res.put("status-code",status);
-        if(status!=200) res.put("message","update failed");
-        cl.sendJson(gson.toJson(res));
+    public void update(ClientHandler cl, Object extraData)  {
+        Map<String, Object> result = new HashMap<>();
+        result.put("method", "update");
+
+        if (cl.id <= 0) {
+            result.put("status-code", 401);
+            result.put("message", "not authenticated");
+            cl.sendJson(gson.toJson(result));
+            return;
+        }
+
+        if (!(extraData instanceof Map)) {
+            result.put("status-code", 400);
+            result.put("message", "invalid format");
+            cl.sendJson(gson.toJson(result));
+            return;
+        }
+
+        Map<String, Object> updates = (Map<String, Object>) extraData;
+
+        int status = SQLManager.updateUser(cl.id, updates);
+        result.put("status-code", status);
+
+        if (status != 200) {
+            result.put("message", "update failed");
+        }
+        cl.sendJson(gson.toJson(result));
     }
 
-    public void get(ClientHandler cl){
-        Map<String,Object> res = new HashMap<>();
-        res.put("method","get");
-        if(cl.id<=0){ res.put("status-code",401); res.put("message","not authenticated"); }
-        else {
+    public void get(ClientHandler cl)  {
+        Map<String, Object> result = new HashMap<>();
+        if (cl.id <= 0) {
+            result.put("status-code", 401);
+            result.put("method", "get");
+            result.put("message", "not authenticated");
+        } else {
             String data = SQLManager.get(cl.id);
-            if(data!=null && !data.equals("User not found")){ res.put("status-code",200); res.put("data",data);}
-            else{ res.put("status-code",404); res.put("message","User not found");}
+            if (data != null && !data.equals("User not found")) {
+                result.put("data", data);
+                result.put("status-code", 200);
+            } else {
+                result.put("status-code", 404);
+                result.put("message", "User not found");
+            }
+            result.put("method", "get");
         }
-        cl.sendJson(gson.toJson(res));
+        cl.sendJson(gson.toJson(result));
     }
 
-    public void delete(ClientHandler cl){
-        Map<String,Object> res = new HashMap<>();
-        res.put("method","delete");
-        if(cl.id<=0){ res.put("status-code",401); res.put("message","not authenticated"); }
-        else{
+    public void delete(ClientHandler cl)  {
+        Map<String, Object> result = new HashMap<>();
+        if (cl.id <= 0) {
+            result.put("status-code", 401);
+            result.put("method", "delete");
+            result.put("message", "not authenticated");
+        } else {
             int status = SQLManager.delete(cl.id);
-            res.put("status-code",status);
-            if(status!=200) res.put("message","delete failed");
-            else cl.id=0;
+            result.put("status-code", status);
+            result.put("method", "delete");
+            if (status != 200) {
+                result.put("message", "delete failed");
+            } else {
+                cl.id = 0;
+            }
         }
-        cl.sendJson(gson.toJson(res));
+        cl.sendJson(gson.toJson(result));
     }
 
-    public void getAccountInfo(ClientHandler cl){
-        if(cl.id<=0){ sendError(cl,"not authenticated"); return;}
-        Map<String,Object> accountData = SQLManager.getAccountInfo(cl.id);
-        if(accountData.isEmpty()){ sendError(cl,"User not found"); return;}
-        Map<String,Object> res = new HashMap<>();
-        res.put("status-code",200);
-        res.put("method","getAccountInfo");
-        res.putAll(accountData);
-        cl.sendJson(gson.toJson(res));
+    public void getAccountInfo(ClientHandler cl) {
+        if (cl.id <= 0) {
+            sendError(cl, "not authenticated");
+            return;
+        }
+        Map<String, Object> accountData = SQLManager.getAccountInfo(cl.id);
+        if (accountData.isEmpty()) {
+            sendError(cl, "User not found");
+            return;
+        }
+        Map<String, Object> result = new HashMap<>();
+        result.put("status-code", 200);
+        result.put("method", "getAccountInfo");
+        result.putAll(accountData);
+        cl.sendJson(gson.toJson(result));
     }
 
-    public void getServerSongs(ClientHandler cl){
-        List<Map<String,Object>> songs = SQLManager.getServerSongs();
-        Map<String,Object> res = new HashMap<>();
-        res.put("status-code",200);
-        res.put("method","getServerSongs");
-        res.put("songs",songs);
-        cl.sendJson(gson.toJson(res));
+    public void getServerSongs(ClientHandler cl)  {
+        List<Map<String, Object>> songs = SQLManager.getServerSongs();
+        Map<String, Object> result = new HashMap<>();
+        result.put("status-code", 200);
+        result.put("method", "getServerSongs");
+        result.put("songs", songs);
+        cl.sendJson(gson.toJson(result));
     }
 
     public void downloadSong(ClientHandler cl, int songId){
-        if(cl.id<=0){ sendError(cl,"not authenticated"); return;}
-        Map<String,Object> songData = SQLManager.downloadSong(cl,songId);
-        if(songData.containsKey("error")){ sendError(cl,(String)songData.get("error")); return;}
-        Map<String,Object> res = new HashMap<>();
-        res.put("status-code",200);
-        res.put("method","downloadSong");
-        res.putAll(songData);
-        cl.sendJson(gson.toJson(res));
+        if (cl.id <= 0) {
+            sendError(cl, "not authenticated");
+            return;
+        }
+
+        Map<String, Object> songdata = SQLManager.downloadSong(cl,songId);
+
+        if (songdata.containsKey("error")) {
+            sendError(cl, (String) songdata.get("error"));
+            return;
+        }
+        if(songdata.containsKey("message")){
+            sendError(cl,(String) songdata.get("message"));
+        }
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("status-code", 200);
+        result.put("method", "downloadBook");
+        result.putAll(songdata);
+        cl.sendJson(gson.toJson(result));
     }
 
-    public void chatWithAdmin(ClientHandler cl, String message){
-        Map<String,Object> msg = new HashMap<>();
-        msg.put("method","ChatWithAdmin");
+    public void chatWithAdmin(ClientHandler cl, String message)  {
+        Map<String, Object> msg = new HashMap<>();
         System.out.println(message);
-        Scanner in = new Scanner(System.in);
-        String response = in.nextLine();
-        msg.put("response",response);
+        msg.put("method", "ChatWithAdmin");
+        Scanner in=new Scanner(System.in);
+        String response= in.nextLine();
+        msg.put("response", response);
         cl.sendJson(gson.toJson(msg));
     }
 
-    public void forgetPassword(ClientHandler cl, String username){
-        Map<String,Object> res = new HashMap<>();
-        int id = SQLManager.getAccByUsername(username);
+    public void forgetPassword(ClientHandler cl, String username) {
+        Map<String, Object> result = new HashMap<>();
+        int id=SQLManager.getAccByUsername(username);
         if(id!=-1){
-            String newPass = PasswordGenerator.generatePassword(8);
-            System.out.println("\uD83D\uDCE4 new password: "+newPass);
-            boolean success = SQLManager.resetPassword(id,newPass);
-            res.put("status-code", success?200:500);
-            res.put("method","ForgetPassword");
-            res.put("message", success?"Password reset successful":"Reset failed");
-        } else{
-            res.put("status-code",401);
-            res.put("method","ForgetPassword");
-            res.put("message","user not found.");
+            String newPassword=PasswordGenerator.generatePassword(8);
+            System.out.println("\uD83D\uDCE4 new password: "+newPassword);
+            boolean success = SQLManager.resetPassword(id, newPassword);
+            result.put("status-code", success ? 200 : 500);
+            result.put("method", "ForgetPassword");
+            result.put("message", success ? "Password reset successful" : "Reset failed");
         }
-        cl.sendJson(gson.toJson(res));
+        else{
+            result.put("status-code", 401);
+            result.put("method", "ForgetPassword");
+            result.put("message", "user not found.");
+        }
+        cl.sendJson(gson.toJson(result));
     }
 
-    public void getDownloadSongs(ClientHandler cl){
-        List<Map<String,Object>> songs = SQLManager.getDownloadedSongs(cl.id);
-        Map<String,Object> res = new HashMap<>();
-        res.put("status-code",200);
-        res.put("method","getDownloadedSongs");
-        res.put("songs",songs);
-        cl.sendJson(gson.toJson(res));
+    public void getDownloadSongs(ClientHandler cl)  {
+        List<Map<String, Object>> songs = SQLManager.getDownloadedSongs(cl.id);
+        Map<String, Object> result = new HashMap<>();
+        result.put("status-code", 200);
+        result.put("method", "getDownloadedSongs");
+        result.put("songs", songs);
+        cl.sendJson(gson.toJson(result));
     }
 
-    public void newPlaylist(ClientHandler cl, String playlistName){
-        boolean created = SQLManager.createPlaylist(cl.id,playlistName);
-        Map<String,Object> res = new HashMap<>();
-        res.put("status-code",created?200:500);
-        res.put("method","newPlaylist");
-        res.put("message",created?"Playlist created":"Error creating playlist");
-        cl.sendJson(gson.toJson(res));
+    public void newPlaylist(ClientHandler cl, String playlistName)  {
+        boolean created = SQLManager.createPlaylist(cl.id, playlistName);
+        Map<String, Object> result = new HashMap<>();
+        result.put("status-code", created ? 200 : 500);
+        result.put("method", "newPlaylist");
+        result.put("message", created ? "Playlist created" : "Error creating playlist");
+        cl.sendJson(gson.toJson(result));
     }
 
-    public void addSong(ClientHandler cl, int playlistId, double songId){
-        boolean added = SQLManager.addSongToPlaylist(playlistId,songId);
-        Map<String,Object> res = new HashMap<>();
-        res.put("status-code",added?200:500);
-        res.put("method","addSong");
-        res.put("message",added?"Song added":"Failed to add");
-        cl.sendJson(gson.toJson(res));
+    public void addSong(ClientHandler cl, int playlistId, double songId)  {
+        boolean added = SQLManager.addSongToPlaylist(playlistId, songId);
+        Map<String, Object> result = new HashMap<>();
+        result.put("status-code", added ? 200 : 500);
+        result.put("method", "addSong");
+        result.put("message", added ? "Song added" : "Failed to add");
+        cl.sendJson(gson.toJson(result));
     }
 
-    public void deletePlaylist(ClientHandler cl, String playlistId){
-        boolean deleted = SQLManager.deletePlaylist(cl.id,Integer.parseInt(playlistId));
-        Map<String,Object> res = new HashMap<>();
-        res.put("status-code",deleted?200:500);
-        res.put("method","deletePlaylist");
-        res.put("message",deleted?"Deleted":"Failed");
-        cl.sendJson(gson.toJson(res));
+    public void deletePlaylist(ClientHandler cl, String playlistId)  {
+        boolean deleted = SQLManager.deletePlaylist(cl.id, Integer.parseInt(playlistId));
+        Map<String, Object> result = new HashMap<>();
+        result.put("status-code", deleted ? 200 : 500);
+        result.put("method", "deletePlaylist");
+        result.put("message", deleted ? "Deleted" : "Failed");
+        cl.sendJson(gson.toJson(result));
     }
 
-    public void addComment(ClientHandler cl, int songId, String comment){
-        if(cl.id<=0){ sendError(cl,"not authenticated"); return;}
-        boolean success = SQLManager.addComment(songId,cl.id,comment);
-        Map<String,Object> res = new HashMap<>();
-        res.put("method","addComment");
-        res.put("status-code",success?200:500);
-        res.put("message",success?"Comment successfully added":"Failed to add comment");
-        cl.sendJson(gson.toJson(res));
+    public void rate(ClientHandler cl, double rating, double songId){
+        boolean rated=SQLManager.rate(songId,rating);
+        Map<String, Object> result = new HashMap<>();
+        result.put("status-code", rated ? 200 : 500);
+        result.put("method", "rate");
+        result.put("message", rated ? "rated" : "Failed");
+        cl.sendJson(gson.toJson(result));
+
     }
 
-    public void getComments(ClientHandler cl, int songId){
-        List<Map<String,Object>> comments = SQLManager.getComments(songId);
-        Map<String,Object> res = new HashMap<>();
-        res.put("method","getComments");
-        res.put("status-code",200);
-        res.put("comments",comments);
-        cl.sendJson(gson.toJson(res));
+    public void getRating(ClientHandler cl,double songId){
+        Map<String, Object> ratings=SQLManager.getRating(songId);
+        Map<String, Object> result = new HashMap<>();
+        result.put("status-code", !ratings.isEmpty() ? 200 : 500);
+        result.put("rate",ratings);
+        result.put("method", "getRating");
+        cl.sendJson(gson.toJson(result));
     }
 
-    public void rateSong(ClientHandler cl, int songId, int rating){
-        if(cl.id<=0){ sendError(cl,"not authenticated"); return;}
-        boolean success = SQLManager.rateSong(songId, cl.id, rating);
-        double avgRating = SQLManager.getAverageRating(songId);
-        Map<String,Object> res = new HashMap<>();
-        res.put("method","rateSong");
-        res.put("status-code",success?200:500);
-        res.put("message",success?"Rating updated":"Failed to rate");
-        res.put("averageRating",avgRating);
-        cl.sendJson(gson.toJson(res));
-    }
-
-    private void getPlaylistSongs(ClientHandler cl,String playlistName,int userId){
-        List<Integer> songs = SQLManager.getPlaylistSongs(userId,playlistName);
-        Map<String,Object> res = new HashMap<>();
-        res.put("status-code",200);
-        res.put("method","getPlaylistSongs");
-        res.put("songs",songs);
-        cl.sendJson(gson.toJson(res));
-    }
-
-    private void getPlaylists(ClientHandler cl){
-        List<Map<String,Object>> playlists = SQLManager.getPlaylists(cl.id);
-        Map<String,Object> res = new HashMap<>();
-        res.put("status-code",200);
-        res.put("method","getPlaylists");
-        res.put("playlists",playlists);
-        cl.sendJson(gson.toJson(res));
+    public void deleteComment(ClientHandler cl, double commentId, double id){
+        boolean success=SQLManager.deleteComment((int) commentId, (int)id);
+        Map<String, Object> result = new HashMap<>();
+        result.put("status-code", success ? 200 : 500);
+        result.put("method", "deletePlaylist");
+        result.put("message", success ? "Deleted" : "Failed");
+        cl.sendJson(gson.toJson(result));
     }
 }
