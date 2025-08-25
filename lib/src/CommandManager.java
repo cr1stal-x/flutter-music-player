@@ -134,15 +134,24 @@ public class CommandManager {
 
             case "addComment":
                 extraData = command.get("extraData");
-                if (extraData instanceof Map) {
-                    double songId = (double) ((Map) extraData).get("songId");
-                    String username = command.get("username");
-                    String text = (String) ((Map) extraData).get("comment");
-                    addComment(cl, songId, username, text);
+                if(extraData instanceof Map){
+                    Map<?, ?> dataMap = (Map<?, ?>) extraData;
+                    Object songIdObj = dataMap.get("songId");
+                    Object commentObj = dataMap.get("comment");
+
+                    if(songIdObj != null && commentObj != null){
+                        double songId = ((Number) songIdObj).doubleValue();
+                        String username = command.get("username");
+                        String text = commentObj.toString();
+                        addComment(cl, songId, username, text);
+                    } else {
+                        sendError(cl, "Missing songId or comment");
+                    }
                 } else {
-                    sendError(cl, "Invalid");
+                    sendError(cl, "Invalid extraData format");
                 }
                 break;
+
 
             case "likeComment":
                 extraData = command.get("extraData");
