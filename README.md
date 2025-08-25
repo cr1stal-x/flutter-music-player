@@ -151,33 +151,32 @@ The project supports local music playback, online music from a server, user auth
 - Adaptive UI components
 
 ### Screenshots
----
-
-## Screenshots
 
 <div align="center">
-
-<img src="screenshots/photo_10_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>
 <img src="screenshots/photo_2_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>
-<img src="screenshots/photo_13_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>
 <img src="screenshots/photo_14_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>
-<img src="screenshots/photo_8_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>
-<img src="screenshots/photo_22_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>
-<img src="screenshots/photo_11_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>
-<img src="screenshots/photo_16_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>
-<img src="screenshots/photo_20_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>
-<img src="screenshots/photo_6_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>
-<img src="screenshots/photo_3_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>
-<img src="screenshots/photo_5_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>
-<img src="screenshots/photo_18_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>
-<img src="screenshots/photo_1_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>
-<img src="screenshots/photo_12_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>
-<img src="screenshots/photo_7_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>
-<img src="screenshots/photo_19_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>
-<img src="screenshots/photo_15_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>
-<img src="screenshots/photo_4_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>
-<img src="screenshots/photo_9_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>
-<img src="screenshots/photo_17_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>
+<img src="screenshots/photo_22_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>6
+<img src="screenshots/photo_11_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>7
+<img src="screenshots/photo_16_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>8
+<img src="screenshots/photo_10_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>1
+<img src="screenshots/photo_6_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>10
+<img src="screenshots/photo_18_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>13
+<img src="screenshots/photo_15_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>18
+<img src="screenshots/photo_4_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>19
+<img src="screenshots/photo_13_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>3
+
+<img src="screenshots/photo_8_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>5
+
+<img src="screenshots/photo_20_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>9
+<img src="screenshots/photo_3_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>11
+<img src="screenshots/photo_5_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>12
+<img src="screenshots/photo_1_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>14
+<img src="screenshots/photo_12_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>15
+<img src="screenshots/photo_7_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>16
+<img src="screenshots/photo_19_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>17
+
+<img src="screenshots/photo_9_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>20
+<img src="screenshots/photo_17_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>21
 
 </div>
 
