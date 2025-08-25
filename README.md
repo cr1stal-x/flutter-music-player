@@ -1,4 +1,4 @@
-# AP Flutter Music Player Project (Spring 404)
+# AP Flutter Music Player Project (Spring 1404)
 
 This repository contains a Flutter-based frontend for a music player application, paired with a Java backend (using socket) and server-side components.
 The project supports local music playback, online music from a server, user authentication, and a server-backed music store with a dual-database approach.
@@ -144,8 +144,6 @@ The project supports local music playback, online music from a server, user auth
   - Test Database Manager (TestDB Manager) for users
 
 ---
-
-✨ Plus all additional improvements and refinements made throughout the project.
 
 
 ### Screenshots
