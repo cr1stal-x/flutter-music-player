@@ -15,7 +15,7 @@ public class CommandManager {
             case "LogOut": logOut(cl); break;
             case "SignUp": signUp(command.get("username"), command.get("password"),command.get("email"), cl); break;
             case "Update": update(cl, command.get("extraData")); break;
-            case "login":login(command.get("username"), command.get("password"), cl);
+            case "login":login(command.get("username"), command.get("password"), cl); break;
             case "Get": get(cl); break;
             case "Delete": delete(cl); break;
             case "DownloadSong":

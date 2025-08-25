@@ -5,7 +5,7 @@ import java.sql.*;
 public class SQLConnection {
     private static final String URL = "jdbc:mysql://localhost:3306/musix?useSSL=false&serverTimezone=UTC";
     private static final String USER = "root";
-    private static final String PASSWORD = "RozSava466557";
+    private static final String PASSWORD = "Asdf1234$";
 
 
 
