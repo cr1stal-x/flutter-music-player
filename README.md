@@ -117,8 +117,10 @@ The project supports local music playback, online music from a server, user auth
 - Progress bar with time
 - Controls: play, pause, next, shuffle, repeat
 - Favorites and lyrics option
-
+<p align="center">
 <img src="screenshots/music_player_screen.jpg" alt="Music Player" width="200"/>
+</p>
+
 
 ---
 
@@ -128,10 +130,13 @@ The project supports local music playback, online music from a server, user auth
 - Song listings with rating & cover
 - Purchase/download flow
 - Account access and purchase history
-
+<p align="center">
 <img src="screenshots/downloaded_server_songs.jpg" alt="Downloaded Server Songs" width="200"/>  
 <img src="screenshots/server_songs.jpg" alt="Server Songs" width="200"/>  
 <img src="screenshots/shop_page.jpg" alt="Shop Page" width="200"/>
+
+</p>
+
 
 ---
 
