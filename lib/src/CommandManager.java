@@ -124,11 +124,17 @@ public class CommandManager {
                 break;
             case "getComments":
                 extraData = command.get("extraData");
-                if (extraData instanceof Map) {
-                    double songId = (double) ((Map) extraData).get("songId");
-                    getComments(cl, songId);
+                if(extraData instanceof Map){
+                    Map<?, ?> dataMap = (Map<?, ?>) extraData;
+                    Object songIdObj = dataMap.get("songId");
+                    if(songIdObj != null){
+                        double songId = ((Number) songIdObj).doubleValue();
+                        getComments(cl, songId);
+                    } else {
+                        sendError(cl, "Missing songId");
+                    }
                 } else {
-                    sendError(cl, "Invalid");
+                    sendError(cl, "Invalid extraData format");
                 }
                 break;
 
