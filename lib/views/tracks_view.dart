@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:musix/views/song_view.dart';
-import 'package:on_audio_query/on_audio_query.dart';
+import 'package:on_audio_query/on_audio_query.dart' hide PlaylistModel;
 import 'package:provider/provider.dart';
 import '../Auth.dart';
+import '../models/playlist_model.dart';
 import '../testClient.dart';
 import '../view_models/library_view_model.dart';
 import '../view_models/song_view_model.dart';
-
+import 'package:musix/models/playlist_sqlite.dart';
 
 enum SortOption {
   modified,
   title,
   artist,
 }
+
 class TracksView extends StatelessWidget {
   const TracksView({super.key});
 
@@ -28,8 +30,76 @@ class TracksView extends StatelessWidget {
 class TracksScreen extends StatelessWidget {
   const TracksScreen({super.key});
 
+  Future<void> showAddToPlaylistDialog(BuildContext context, SongModel song) async {
+    List<Map<String, dynamic>> raw = await PlaylistDB.instance.getRawPlaylists();
+    List<PlaylistModel> playlists = raw.map((e) => PlaylistModel.fromMap(e)).toList();
 
-  void _showAddToPlaylistDialog(BuildContext context, SongModel song) async {
+
+    if (playlists.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("You don't have any playlists yet.")),
+      );
+      return;
+    }
+
+    String? selectedPlaylist;
+
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Choose a Playlist'),
+          content: StatefulBuilder(
+            builder: (context, setState) {
+              return SizedBox(
+                width: double.minPositive,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: playlists.map((playlist) {
+                    return RadioListTile<String>(
+                      title: Text(playlist.name),
+                      value: playlist.name,
+                      groupValue: selectedPlaylist,
+                      onChanged: (value) {
+                        setState(() {
+                          selectedPlaylist = value;
+                        });
+                      },
+                    );
+                  }).toList(),
+                ),
+              );
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                if (selectedPlaylist != null) {
+                  final chosen = playlists.firstWhere((p) => p.name == selectedPlaylist);
+
+                  await PlaylistDB.instance.addSongToPlaylist(
+                    chosen.id!,
+                    song.id,
+                  );
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text("Added ${song.title} to $selectedPlaylist")),
+                  );
+                }
+                Navigator.pop(context);
+              },
+              child: const Text('Add'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+  Future<void> _showAddToPlaylistDialog(BuildContext context, SongModel song) async{
     final client = Provider.of<CommandClient>(context, listen: false);
     final auth = Provider.of<AuthProvider>(context, listen: false);
 
@@ -119,7 +189,6 @@ class TracksScreen extends StatelessWidget {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
     final vm = Provider.of<LibraryViewModel>(context);
@@ -151,7 +220,7 @@ class TracksScreen extends StatelessWidget {
   Widget _buildShuffleBar(BuildContext context, LibraryViewModel vm) {
     return Row(
       children: [
-        SizedBox(width: 15,),
+        const SizedBox(width: 15),
         const Icon(Icons.play_circle),
         const SizedBox(width: 8),
         const Text("Shuffle Playback"),
@@ -164,7 +233,7 @@ class TracksScreen extends StatelessWidget {
             PopupMenuItem(value: SortOption.title, child: Text("Title")),
             PopupMenuItem(value: SortOption.artist, child: Text("Artist")),
           ],
-        )
+        ),
       ],
     );
   }
@@ -187,22 +256,28 @@ class TracksScreen extends StatelessWidget {
               ),
               trailing: PopupMenuButton<String>(
                 onSelected: (value) {
-                  if (value == 'add_to_playlist') {
+                  if (value == 'add_to_online_playlist') {
                     final auth = Provider.of<AuthProvider>(context, listen: false);
-                    if(auth.isAuthenticated){
+                    if (auth.isAuthenticated) {
                       _showAddToPlaylistDialog(context, song);
-                    }else{
+                    } else {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('login to your account to add songs to playlists.')),
+                        const SnackBar(content: Text('Login to your account to add songs to playlists.')),
                       );
                     }
-                  }
-                },
-                itemBuilder: (context) => [
-                  const PopupMenuItem(
-                    value: 'add_to_playlist',
-                    child: Text('Add to Playlist'),
+                  }else{
+                      showAddToPlaylistDialog(context, song);
+
+                }},
+                itemBuilder: (context) => const [
+                  PopupMenuItem(
+                    value: 'add_to_online_playlist',
+                    child: Text('Add to online Playlist'),
                   ),
+                  PopupMenuItem(
+                      value: 'add_to_offline_playlist',
+                      child:Text('Add to offline playlist'),
+                  )
                 ],
               ),
               onTap: () async {
@@ -215,13 +290,9 @@ class TracksScreen extends StatelessWidget {
                 );
               },
             );
-
           },
         );
       },
     );
   }
 }
-
-
-

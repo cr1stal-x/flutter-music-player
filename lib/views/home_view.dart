@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:musix/views/drawer.dart';
+import 'package:musix/views/playlist_page.dart';
 import 'package:musix/views/playlist_view.dart';
 import 'package:musix/views/tracks_view.dart';
 import 'package:provider/provider.dart';
@@ -178,7 +179,33 @@ class HomeView extends StatelessWidget {
                 children: const [
                   SizedBox(height: 6),
                   Icon(Icons.playlist_add_outlined, size: 100),
-                  Text('PlayLists'),
+                  Text('Online PlayLists'),
+                  SizedBox(height: 6),
+                ],
+              ),
+            ),
+            const SizedBox(height: 50),
+            FilledButton(
+              style: FilledButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                padding: const EdgeInsets.all(10),
+                minimumSize: const Size(double.infinity, 100),
+
+                backgroundColor: Theme.of(context).colorScheme.secondary,
+              ),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => PlaylistPage()),
+                );
+              },
+              child: Column(
+                children: const [
+                  SizedBox(height: 6),
+                  Icon(Icons.playlist_add_check, size: 100),
+                  Text('Offline Playlists'),
                   SizedBox(height: 6),
                 ],
               ),

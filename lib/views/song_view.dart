@@ -59,6 +59,7 @@ class MusicPlayerScreen extends StatelessWidget {
                               type: ArtworkType.AUDIO,
                               artworkHeight: 250,
                               artworkWidth: 250,
+                              keepOldArtwork: true,
                               nullArtworkWidget: Image.asset('assets/images/songs.png'),
                             ),
                           ),
