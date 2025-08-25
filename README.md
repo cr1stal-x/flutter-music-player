@@ -108,7 +108,6 @@ The project supports local music playback, online music from a server, user auth
 - Bottom navigation for Home/Shop
 - Favorites and quick access to current song
 
-<img src="screenshots/local_songs_list.jpg" alt="Local Songs" width="200"/>
 
 ---
 
@@ -117,9 +116,6 @@ The project supports local music playback, online music from a server, user auth
 - Progress bar with time
 - Controls: play, pause, next, shuffle, repeat
 - Favorites and lyrics option
-<p align="center">
-<img src="screenshots/music_player_screen.jpg" alt="Music Player" width="200"/>
-</p>
 
 
 ---
@@ -130,12 +126,6 @@ The project supports local music playback, online music from a server, user auth
 - Song listings with rating & cover
 - Purchase/download flow
 - Account access and purchase history
-<p align="center">
-<img src="screenshots/downloaded_server_songs.jpg" alt="Downloaded Server Songs" width="200"/>  
-<img src="screenshots/server_songs.jpg" alt="Server Songs" width="200"/>  
-<img src="screenshots/shop_page.jpg" alt="Shop Page" width="200"/>
-
-</p>
 
 
 ---
@@ -159,3 +149,37 @@ The project supports local music playback, online music from a server, user auth
 ### Responsiveness
 - Optimized for phones/tablets
 - Adaptive UI components
+
+### Screenshots
+---
+
+## Screenshots
+
+<div align="center">
+
+<img src="screenshots/photo_10_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>
+<img src="screenshots/photo_2_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>
+<img src="screenshots/photo_13_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>
+<img src="screenshots/photo_14_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>
+<img src="screenshots/photo_8_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>
+<img src="screenshots/photo_22_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>
+<img src="screenshots/photo_11_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>
+<img src="screenshots/photo_16_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>
+<img src="screenshots/photo_20_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>
+<img src="screenshots/photo_6_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>
+<img src="screenshots/photo_3_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>
+<img src="screenshots/photo_5_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>
+<img src="screenshots/photo_18_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>
+<img src="screenshots/photo_1_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>
+<img src="screenshots/photo_12_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>
+<img src="screenshots/photo_7_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>
+<img src="screenshots/photo_19_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>
+<img src="screenshots/photo_15_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>
+<img src="screenshots/photo_4_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>
+<img src="screenshots/photo_9_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>
+<img src="screenshots/photo_17_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>
+
+</div>
+
+---
+
