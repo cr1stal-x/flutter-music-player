@@ -99,56 +99,54 @@ The project supports local music playback, online music from a server, user auth
 ---
 
 ## UI & UX Overview
+### Features
 
-### Home Screen
-- Local and downloaded songs
-- Sections by folders/albums
-- Song tiles with cover, title, artist
-- Search/sort options
-- Bottom navigation for Home/Shop
-- Favorites and quick access to current song
+1. **User Management**
+  - Edit username and password
+  - Sign up / Login
+  - Support for password recovery (forgot password)
+  - Edit profile picture (avatar)
 
+2. **Account & Payments**
+  - Increase credit balance
+  - Integrated payment system
+  - Buy premium and VIP credit
+  - User-friendly and editable fields
+
+3. **Songs & Media**
+  - List of all server songs
+  - Download songs to local storage
+  - View downloaded songs
+  - Convert songs to Base64 from a specified folder
+
+4. **Playlists**
+  - Create playlists offline (SQLite)
+  - Create playlists online (MySQL)
+  - Manage personal playlists easily
+
+5. **Comments & Ratings**
+  - Send comments on songs
+  - Rate songs and comments
+  - Sorting system for comments and songs
+  - Commenting and rating for server songs
+  - Option to buy songs
+
+6. **Categories & Shop**
+  - Updated categories for songs in shop
+  - Load categories dynamically
+
+7. **Chat & Support**
+  - Chat with admin (online support system)
+  - Admin-server communication
+
+8. **Testing & Development**
+  - Added test database
+  - Test Database Manager (TestDB Manager) for users
 
 ---
 
-### Song Details
-- Album art, title, artist
-- Progress bar with time
-- Controls: play, pause, next, shuffle, repeat
-- Favorites and lyrics option
+✨ Plus all additional improvements and refinements made throughout the project.
 
-
----
-
-### Music Shop
-- Sign Up / Sign In
-- Category filters
-- Song listings with rating & cover
-- Purchase/download flow
-- Account access and purchase history
-
-
----
-
-### Account Screen
-- Profile image, username, email
-- Password change, logout, delete
-- Wallet/credits, subscription management
-- Theme customization
-- Support chat
-
----
-
-### Payment Screen
-- Dummy card entry
-- Amount and payment button
-- Updates balance/subscription
-
----
-
-### Responsiveness
-- Optimized for phones/tablets
-- Adaptive UI components
 
 ### Screenshots
 
