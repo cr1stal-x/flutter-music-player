@@ -88,16 +88,24 @@ public class CommandManager {
             case "DeletePlaylist": deletePlaylist(cl, command.get("playlistName")); break;
             case "GetPlaylists":getPlaylists(cl);break;
             case "GetPlaylistSongs":
-                extraData=command.get("extraData");
+                extraData = command.get("extraData");
                 if(extraData instanceof Map){
-                    String username=command.get("username");
-                    int userId=SQLManager.getAccByUsername(username);
-                    String playlistName = (String)((Map)extraData).get("playlistName");
-                    getPlaylistSongs(cl, playlistName,userId);
+                    Map<?, ?> dataMap = (Map<?, ?>) extraData;
+                    Object playlistNameObj = dataMap.get("playlistName");
+
+                    if(playlistNameObj != null){
+                        String username = command.get("username");
+                        int userId = SQLManager.getAccByUsername(username);
+                        String playlistName = playlistNameObj.toString();
+                        getPlaylistSongs(cl, playlistName, userId);
+                    } else {
+                        sendError(cl, "Missing playlistName");
+                    }
                 } else {
-                    sendError(cl, "Invalid username");
+                    sendError(cl, "Invalid extraData format");
                 }
                 break;
+
             case "DeleteSong":
                 extraData=command.get("extraData");
                 if(extraData instanceof Map){
