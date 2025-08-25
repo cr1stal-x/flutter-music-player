@@ -478,7 +478,7 @@ public class CommandManager {
 
         Map<String, Object> result = new HashMap<>();
         result.put("status-code", 200);
-        result.put("method", "downloadBook");
+        result.put("method", "downloadSong");
         result.putAll(songdata);
         cl.sendJson(gson.toJson(result));
     }

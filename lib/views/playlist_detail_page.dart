@@ -51,7 +51,7 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.playlistName),
+        title: Text(widget.playlistName, style: TextStyle(fontWeight: FontWeight.bold),),
         centerTitle: true,
       ),
       body: songs.isEmpty

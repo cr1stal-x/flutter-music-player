@@ -70,7 +70,7 @@ class SignUpViewModel extends ChangeNotifier {
 
     final auth = Provider.of<AuthProvider>(context, listen: false);
     final client = Provider.of<CommandClient>(context, listen: false);
-
+  try{
     final success = await auth.signUp(
       userNameController.text,
       emailController.text,
@@ -100,6 +100,12 @@ class SignUpViewModel extends ChangeNotifier {
         const SnackBar(content: Text('Username exists.')),
       );
     }
+  }catch (e){
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Center(child: Text('No connection to server!'))),
+    );
+  }
+
   }
 
 

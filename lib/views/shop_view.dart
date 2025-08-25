@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:marquee/marquee.dart';
 import 'package:musix/views/drawer.dart';
 import 'package:musix/views/server_view.dart';
 import 'package:provider/provider.dart';
@@ -18,7 +19,24 @@ class ShopPage extends StatelessWidget {
 
     if (provider.error != null) {
       return Scaffold(
-        body: Center(child: Text('Error: ${provider.error}')),
+        body: Center(child:
+        SizedBox(
+          height: 300,
+          width: 300,
+          child: Marquee(
+            text: 'No connection to server!',
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+            scrollAxis: Axis.vertical,
+            blankSpace: 50.0,
+            velocity: 200.0,
+            startPadding: 10.0,
+            accelerationCurve: Curves.linear,
+            decelerationCurve: Curves.easeOut,
+          ),
+        ),),
       );
     }
 
@@ -79,7 +97,7 @@ class ShopPage extends StatelessWidget {
                     padding: const EdgeInsets.all(8.0),
                     child: Text(
                       categories[index],
-                      style: const TextStyle(color: Colors.black),
+                      style: const TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ],

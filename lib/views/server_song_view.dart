@@ -30,7 +30,7 @@ class _ServerSongViewState extends State<ServerSongView> {
   }
 
 
-  Future<void> _downloadSong(Map<String, dynamic> song) async {
+  Future<bool> _downloadSong(Map<String, dynamic> song) async {
     final songId = song['id'];
     final songTitle = (song['title'] ?? 'Unknown').toString().replaceAll(' ', '_');
 
@@ -51,7 +51,7 @@ class _ServerSongViewState extends State<ServerSongView> {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text("❌ Storage permission denied")),
           );
-          return;
+          return false;
         }
 
         Directory? downloadsDir = Directory('/storage/emulated/0/Download');
@@ -70,15 +70,19 @@ class _ServerSongViewState extends State<ServerSongView> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("✅ $songTitle saved at $filePath")),
         );
+        return true;
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('❌ No song data in response')),
         );
+        return false;
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(response['message'] ?? 'Failed to download song')),
       );
+      return false;
+
     }
   }
 
@@ -143,14 +147,15 @@ class _ServerSongViewState extends State<ServerSongView> {
                     fontSize: 28, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
               Text(
                 'Price: \$ $price',
                 style: const TextStyle(fontSize: 22),
               ),
+              Text("download times: ${widget.song['download_time']}", style: TextStyle(fontSize: 20),),
               SizedBox(height: 30,),
               Text(
-                "rating: $rating / 5 ($ratingCount)",
+                "rating: ${rating.toStringAsFixed(2)} / 5 ($ratingCount)",
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 18,
@@ -158,6 +163,7 @@ class _ServerSongViewState extends State<ServerSongView> {
                   color: Theme.of(context).colorScheme.secondary,
                 ),
               ),
+
               SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -204,30 +210,45 @@ class _ServerSongViewState extends State<ServerSongView> {
                   double parsed=double.parse(price);
                   if(auth.isVip??false){
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('song is now accessible via VIP access.')),
-                    );
-                    _downloadSong(widget.song);
+                    SnackBar(content: Text('song is now accessible via VIP access.')),
+                  );
+                    bool downloaded=await _downloadSong(widget.song);
+                    if(downloaded){
+                      setState(() {
+                        widget.song['download_time']+=1;
+                      });
+                    }
+
                   }else{
                     if((auth.credit??0)<parsed){
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text('credit is not enough.')),
                       );
                     }else{
-                      final newCredit=(auth.credit??0)-parsed;
-                      final response = await client.sendCommand(
-                        'Update',
-                        extraData: {"credit": newCredit},
-                      );
-
-                      if (response['status-code'] == 200) {
-                        auth.updateField("credit", newCredit);
-                      } else {
-                        print("Update failed: ${response['message']}");
-                      }
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Song is now accessible via credit payment.')),
-                      );
-                      _downloadSong(widget.song);
+                      SnackBar(content: Text('Song is now accessible via credit payment.')),
+                    );
+                      bool downloaded=await _downloadSong(widget.song);
+                      if(downloaded){
+
+                        final newCredit=(auth.credit??0)-parsed;
+                        final response = await client.sendCommand(
+                          'Update',
+                          extraData: {"credit": newCredit},
+                        );
+
+                        if (response['status-code'] == 200) {
+                          auth.updateField("credit", newCredit);
+                        } else {
+                          print("Update failed: ${response['message']}");
+                        }
+                        setState(() {
+                          widget.song['download_time']+=1;
+                        });
+                      }
+
+
+
                     }
                   }
 

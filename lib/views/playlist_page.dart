@@ -68,7 +68,9 @@ class _PlaylistPageState extends State<PlaylistPage> {
         itemBuilder: (context, index) {
           final playlist = playlists[index];
           return ListTile(
-            title: Text(playlist['name']),
+            contentPadding: EdgeInsetsGeometry.symmetric(vertical: 10, horizontal: 10),
+            leading: Icon(Icons.music_video, size: 60,),
+            title: Text(playlist['name'], style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),),
             onTap: () {
               Navigator.push(
                 context,

@@ -245,7 +245,7 @@ public class SQLManager {
                 }
 
                 songData.put("download_time", ((int) songData.get("download_time")) + 1);
-                songData.put("message", "Song downloaded successfully");
+                songData.put("mess", "Song downloaded successfully");
             }
         } catch (SQLException e) {
             e.printStackTrace();

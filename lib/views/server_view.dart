@@ -57,7 +57,7 @@ class _SongsListViewState extends State<SongsListView> {
 
   @override
   Widget build(BuildContext context) {
-    if (error != null) return Center(child: Text("Error: $error"));
+    if (error != null) return Center(child: Text("Error: $error", style: TextStyle(fontSize: 30),));
     final provider = Provider.of<SongProvider>(context);
     final songs = provider.filteredSongs;
 

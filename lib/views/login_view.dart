@@ -27,24 +27,31 @@ class _LoginState extends State<Login> {
 
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final client = Provider.of<CommandClient>(context, listen: false);
+    try{
+      final success = await authProvider.login(username, password, client);
+      if (success) {
+        setState(() {
+          _error = null;
+          _welcome = 'Logged in successfully✅ welcome $username!';
+        });
 
-    final success = await authProvider.login(username, password, client);
-    if (success) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => UserAccount()),
+        );
+      } else {
+        setState(() {
+          _error = 'Login failed. Check your username or password.';
+          _welcome = null;
+        });
+      }
+    }catch(e){
       setState(() {
-        _error = null;
-        _welcome = 'Logged in successfully✅ welcome $username!';
-      });
-
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => UserAccount()),
-      );
-    } else {
-      setState(() {
-        _error = 'Login failed. Check your username or password.';
+        _error = 'No Connection to server.';
         _welcome = null;
       });
     }
+
   }
 
   Future<void> _forgetPassword(String newValue) async {
