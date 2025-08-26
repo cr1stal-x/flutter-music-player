@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../testClient.dart';
-import 'ServerPlayer.dart';
+import 'server_player.dart';
 
 class DownloadedSongsView extends StatefulWidget {
   const DownloadedSongsView({Key? key}) : super(key: key);
