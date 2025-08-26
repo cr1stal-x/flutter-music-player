@@ -65,7 +65,19 @@ class _LocalMusicPlayerState extends State<LocalMusicPlayer> {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-
+          Container(
+            height: 300,
+            width: 300,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(50),
+              color: Colors.grey[300],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(50),
+              child: Image.asset('assets/images/songs.png'),
+              ),
+          ),
+          SizedBox(height: 30,),
           Text(widget.title, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
           const SizedBox(height: 20),
           Slider(

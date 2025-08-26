@@ -3,8 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 class CommandClient {
-  final String serverAddress = '127.0.0.1';
-  //
+  final String serverAddress = '192.168.1.8';
   final int serverPort = 5050;
   Socket? _socket;
   bool _connecting = false;

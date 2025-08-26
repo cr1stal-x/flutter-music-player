@@ -9,6 +9,8 @@ import '../view_models/library_view_model.dart';
 import '../view_models/song_view_model.dart';
 import 'package:musix/models/playlist_sqlite.dart';
 
+import 'downloaded_local_songs.dart';
+
 enum SortOption {
   modified,
   title,
@@ -221,9 +223,11 @@ class TracksScreen extends StatelessWidget {
     return Row(
       children: [
         const SizedBox(width: 15),
-        const Icon(Icons.play_circle),
+        IconButton(icon: const Icon(Icons.download), onPressed: (){
+          Navigator.push(context, MaterialPageRoute(builder: (context)=>
+              DownloadedServerSongs(folderPath: "/storage/emulated/0/Download/Musix",)));},),
         const SizedBox(width: 8),
-        const Text("Shuffle Playback"),
+        const Text("downloaded tracks"),
         const Spacer(),
         PopupMenuButton<SortOption>(
           icon: const Icon(Icons.sort),

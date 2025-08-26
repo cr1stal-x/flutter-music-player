@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:musix/models/playlist_sqlite.dart';
+import 'favorites_view.dart';
 import 'playlist_detail_page.dart';
 
 class PlaylistPage extends StatefulWidget {
@@ -72,15 +73,20 @@ class _PlaylistPageState extends State<PlaylistPage> {
             leading: Icon(Icons.music_video, size: 60,),
             title: Text(playlist['name'], style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),),
             onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => PlaylistDetailPage(
-                    playlistId: playlist['id'],
-                    playlistName: playlist['name'],
+              if(playlist['name'].toString().toLowerCase()=="favorites"){
+                Navigator.push(context, MaterialPageRoute(builder: (context)=>FavoritesView()));
+              }else{
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => PlaylistDetailPage(
+                      playlistId: playlist['id'],
+                      playlistName: playlist['name'],
+                    ),
                   ),
-                ),
-              );
+                );
+              }
+
             },
             trailing: IconButton(
               icon: const Icon(Icons.delete),
