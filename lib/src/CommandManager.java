@@ -341,7 +341,6 @@ public class CommandManager {
 
         Map<String, Object> result = new HashMap<>();
         result.put("method", "login");
-
         if (userId > 0) {
             cl.id = userId;
             double credit = SQLManager.getCredit(userId);

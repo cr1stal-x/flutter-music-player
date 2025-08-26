@@ -209,15 +209,16 @@ class _ServerSongViewState extends State<ServerSongView> {
                   }
                   double parsed=double.parse(price);
                   if(auth.isVip??false){
-                    ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('song is now accessible via VIP access.')),
-                  );
                     bool downloaded=await _downloadSong(widget.song);
                     if(downloaded){
                       setState(() {
                         widget.song['download_time']+=1;
                       });
                     }
+                    ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('song is now accessible via VIP access.')),
+                  );
+
 
                   }else{
                     if((auth.credit??0)<parsed){
@@ -225,9 +226,6 @@ class _ServerSongViewState extends State<ServerSongView> {
                         SnackBar(content: Text('credit is not enough.')),
                       );
                     }else{
-                      ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Song is now accessible via credit payment.')),
-                    );
                       bool downloaded=await _downloadSong(widget.song);
                       if(downloaded){
 
@@ -246,6 +244,10 @@ class _ServerSongViewState extends State<ServerSongView> {
                           widget.song['download_time']+=1;
                         });
                       }
+                      ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Song is now accessible via credit payment.')),
+                    );
+
 
 
 
