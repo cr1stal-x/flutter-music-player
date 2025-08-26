@@ -32,7 +32,7 @@ public class TextDatabase {
         for (Map<String, Object> user : users) {
             if ((user.get("username").equals(userInput) || user.get("email").equals(userInput))
                     && user.get("password").equals(password)) {
-                return ((Double)user.get("id")).intValue(); // چون Gson همه رو double می‌خونه
+                return ((Double)user.get("id")).intValue();
             }
         }
         return 0;
@@ -42,7 +42,7 @@ public class TextDatabase {
         List<Map<String, Object>> users = readUsers();
         for (Map<String, Object> user : users) {
             if (user.get("username").equals(username)) {
-                return -1; // username exists
+                return -1;
             }
         }
 

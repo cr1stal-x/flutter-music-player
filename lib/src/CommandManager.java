@@ -317,7 +317,7 @@ public class CommandManager {
     }
 
     public void signUp(String userName, String password, String email, ClientHandler cl)  {
-        int status = SQLManager.signUp(userName, password, email);
+        int status = TextDatabase.signUp(userName, password, email);
         Map<String, Object> result = new HashMap<>();
         if (status > 0) {
             cl.id = status;
@@ -337,15 +337,15 @@ public class CommandManager {
     }
 
     public void login(String userInput, String password, ClientHandler cl){
-        int userId = SQLManager.login(userInput, password);
+        int userId = TextDatabase.login(userInput, password);
 
         Map<String, Object> result = new HashMap<>();
         result.put("method", "login");
         if (userId > 0) {
             cl.id = userId;
-            double credit = SQLManager.getCredit(userId);
-            boolean isVip = SQLManager.getIsVip(userId);
-            Map<String,Object>accountInfo=SQLManager.getAccountInfo(userId);
+            double credit = TextDatabase.getCredit(userId);
+            boolean isVip = TextDatabase.getIsVip(userId);
+            Map<String,Object>accountInfo=TextDatabase.getAccountInfo(userId);
             System.out.println(accountInfo);
             String email= (String) accountInfo.get("email");
             String profileCover=(String) accountInfo.get("profile_cover");
@@ -385,7 +385,7 @@ public class CommandManager {
 
         Map<String, Object> updates = (Map<String, Object>) extraData;
 
-        int status = SQLManager.updateUser(cl.id, updates);
+        int status = TextDatabase.updateUser(cl.id, updates);
         result.put("status-code", status);
 
         if (status != 200) {
@@ -401,7 +401,7 @@ public class CommandManager {
             result.put("method", "get");
             result.put("message", "not authenticated");
         } else {
-            String data = SQLManager.get(cl.id);
+            String data = TextDatabase.get(cl.id);
             if (data != null && !data.equals("User not found")) {
                 result.put("data", data);
                 result.put("status-code", 200);
@@ -421,7 +421,7 @@ public class CommandManager {
             result.put("method", "delete");
             result.put("message", "not authenticated");
         } else {
-            int status = SQLManager.delete(cl.id);
+            int status = TextDatabase.delete(cl.id);
             result.put("status-code", status);
             result.put("method", "delete");
             if (status != 200) {
@@ -438,7 +438,7 @@ public class CommandManager {
             sendError(cl, "not authenticated");
             return;
         }
-        Map<String, Object> accountData = SQLManager.getAccountInfo(cl.id);
+        Map<String, Object> accountData = TextDatabase.getAccountInfo(cl.id);
         if (accountData.isEmpty()) {
             sendError(cl, "User not found");
             return;

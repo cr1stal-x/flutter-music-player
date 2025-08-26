@@ -8,12 +8,12 @@ import java.util.concurrent.Executors;
 
 public class Server {
     public static void main(String[] args) {
-        int port = 5050;
+        int port = 5000;
         ExecutorService pool = Executors.newFixedThreadPool(10);
         try (Connection conn = SQLConnection.connect()) {
-            ScriptRunner.runScript(conn, "/Users/sara/Desktop/musix/lib/resources/init.sql");
+            ScriptRunner.runScript(conn, "/Users/user/musix/lib/resources/init.sql");
             System.out.println("Database and table initialized.");
-            List<String> categories=SQLManager.loadSongs("/Users/sara/Desktop/Server_Songs");
+            List<String> categories=SQLManager.loadSongs("E:\\ServerSongs");
         } catch (Exception e) {
             e.printStackTrace();
         }
