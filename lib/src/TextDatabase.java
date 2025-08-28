@@ -53,7 +53,7 @@ public class TextDatabase {
         newUser.put("username", username);
         newUser.put("password", password);
         newUser.put("email", email);
-        newUser.put("credit", 0.0);
+        newUser.put("credit", 5.0);
         newUser.put("isVip", false);
         newUser.put("profile_cover", "");
 

@@ -149,28 +149,22 @@ The project supports local music playback, online music from a server, user auth
 ### Screenshots
 
 <div align="center">
-<img src="screenshots/photo_2_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>
-<img src="screenshots/photo_22_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>
-<img src="screenshots/photo_11_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>
-<img src="screenshots/photo_16_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>
-<img src="screenshots/photo_14_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>
-<img src="screenshots/photo_6_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>
-<img src="screenshots/photo_18_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>
-<img src="screenshots/photo_15_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>
-<img src="screenshots/photo_4_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>
-<img src="screenshots/photo_13_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>
-<img src="screenshots/photo_8_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>
-<img src="screenshots/photo_20_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>
-<img src="screenshots/photo_3_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>
-<img src="screenshots/photo_5_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>
-<img src="screenshots/photo_1_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>
-<img src="screenshots/photo_12_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>
-<img src="screenshots/photo_7_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>
-<img src="screenshots/photo_19_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>
-<img src="screenshots/photo_10_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>
-<img src="screenshots/photo_9_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>
-<img src="screenshots/photo_17_2025-08-25_20-22-59.jpg" alt="screenshot" width="200"/>
-
+<img src="screenshots/IMG_20250828_093157_247.jpg" alt="screenshot" width="200"/>
+<img src="screenshots/IMG_20250828_093157_355.jpg" alt="screenshot" width="200"/>
+<img src="screenshots/IMG_20250828_093157_959.jpg" alt="screenshot" width="200"/>
+<img src="screenshots/IMG_20250828_093159_387.jpg" alt="screenshot" width="200"/>
+<img src="screenshots/IMG_20250828_093159_436.jpg" alt="screenshot" width="200"/>
+<img src="screenshots/IMG_20250828_093159_494.jpg" alt="screenshot" width="200"/>
+<img src="screenshots/IMG_20250828_093159_549.jpg" alt="screenshot" width="200"/>
+<img src="screenshots/IMG_20250828_093159_601.jpg" alt="screenshot" width="200"/>
+<img src="screenshots/IMG_20250828_093200_971.jpg" alt="screenshot" width="200"/>
+<img src="screenshots/IMG_20250828_093201_041.jpg" alt="screenshot" width="200"/>
+<img src="screenshots/IMG_20250828_093201_192.jpg" alt="screenshot" width="200"/>
+<img src="screenshots/IMG_20250828_093201_291.jpg" alt="screenshot" width="200"/>
+<img src="screenshots/IMG_20250828_093201_368.jpg" alt="screenshot" width="200"/>
+<img src="screenshots/IMG_20250828_093201_476.jpg" alt="screenshot" width="200"/>
+<img src="screenshots/IMG_20250828_093201_539.jpg" alt="screenshot" width="200"/>
+<img src="screenshots/IMG_20250828_093201_633.jpg" alt="screenshot" width="200"/>
 </div>
 
 ---
