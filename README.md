@@ -155,7 +155,7 @@ The project supports local music playback, online music from a server, user auth
 <img src="screenshots/IMG_20250828_093159_387.jpg" alt="screenshot" width="200"/>
 <img src="screenshots/IMG_20250828_093159_436.jpg" alt="screenshot" width="200"/>
 <img src="screenshots/IMG_20250828_093159_494.jpg" alt="screenshot" width="200"/>
-<img src="screenshots/IMG_20250828_093201_192.jpg.jpg" alt="screenshot" width="200"/>
+<img src="screenshots/IMG_20250828_093201_192.jpg" alt="screenshot" width="200"/>
 <img src="screenshots/IMG_20250828_093159_601.jpg" alt="screenshot" width="200"/>
 <img src="screenshots/IMG_20250828_093200_971.jpg" alt="screenshot" width="200"/>
 <img src="screenshots/IMG_20250828_093201_041.jpg" alt="screenshot" width="200"/>
